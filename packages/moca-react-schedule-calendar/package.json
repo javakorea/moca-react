@@ -1,0 +1,23 @@
+{
+  "name": "@teammoca/react-schedule-calendar",
+  "version": "0.1.0",
+  "description": "MOCA React ScheduleCalendar — 월간 일정 달력. 연속일정 전개·정렬·바 렌더·공휴일/날씨 표기를 컴포넌트가 맡는다",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "@teammoca/react-input-calendar": "*"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

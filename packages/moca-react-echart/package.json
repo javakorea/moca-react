@@ -1,0 +1,21 @@
+{
+  "name": "@teammoca/react-echart",
+  "version": "0.1.0",
+  "description": "MOCA React Echart — Apache ECharts 를 감싼 차트 컴포넌트. option 만 넘기면 생성·리사이즈·해제를 관리한다",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "echarts": ">=5",
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

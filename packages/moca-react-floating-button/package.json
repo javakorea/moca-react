@@ -1,0 +1,20 @@
+{
+  "name": "@teammoca/react-floating-button",
+  "version": "0.1.0",
+  "description": "MOCA React FloatingButton — 화면 위에 떠 있는 원형/알약형 액션 버튼(FAB). 꾹 눌러 드래그 이동 지원",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

@@ -1,0 +1,48 @@
+.notice-list {
+  list-style: none;
+  margin: 0;
+  padding: 4px;
+}
+
+.notice-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 6px;
+  border-bottom: 1px solid #ddd;
+}
+
+.notice-item:hover {
+  background: #fafafa;
+}
+
+.notice-title {
+  font-weight: 500;
+}
+
+.notice-meta {
+  color: #888;
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .notice-item {
+    border-bottom-color: #444;
+  }
+
+  :root:not([data-theme="light"]) .notice-item:hover {
+    background: #222;
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .notice-item {
+  border-bottom-color: #444;
+}
+
+:root[data-theme="dark"] .notice-item:hover {
+  background: #222;
+}
+

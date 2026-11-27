@@ -1,0 +1,105 @@
+/* 로그인 화면 — MOCA COM_LOGIN 대응 · React 판 디자인
+   분위기: 밝고 깔끔한 소셜 서비스 계정 화면 — 흰 바탕, 선명한 파랑, 큰 둥근 입력칸, 꽉 찬 알약 버튼, 넉넉한 여백.
+   특정 회사의 로고·이름·문구·고유 색 조합은 쓰지 않는다(표식·제목은 MOCA React).
+   Vue 판(어두운 바탕 · 녹색 그라데이션 · 고정폭 글꼴)과 일부러 반대로 간다. 테마 선택과 무관하게 늘 밝다 */
+.com-login {
+  --rl-blue: #1f66f2;
+  --rl-blue-d: #1553cc;
+  --rl-ink: #1c1e21;
+  --rl-sub: #65676b;
+  --rl-line: #d6dbe3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background:
+    radial-gradient(900px 500px at 15% -10%, rgba(31, 102, 242, 0.10), transparent 60%),
+    radial-gradient(700px 420px at 110% 110%, rgba(120, 90, 255, 0.08), transparent 60%),
+    #f7f8fa;
+  color: var(--rl-ink);
+  font-family: -apple-system, 'Segoe UI', 'Helvetica Neue', 'Pretendard Variable', Pretendard, 'Malgun Gothic', sans-serif;
+}
+
+.com-login-box {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 400px;
+  padding: 40px 36px 32px;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.06), 0 12px 32px rgba(28, 30, 33, 0.10);
+}
+
+.com-login-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  font-size: 1.6rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.com-login-mark { width: 52px; height: 52px; }
+
+.com-login-sub {
+  margin: -4px 0 10px;
+  font-size: 0.92rem;
+  color: var(--rl-sub);
+  text-align: center;
+}
+
+.com-login-input {
+  height: 52px;
+  padding: 0 16px;
+  border: 1px solid var(--rl-line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--rl-ink);
+  font-size: 1rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.com-login-input:focus {
+  border-color: var(--rl-blue);
+  box-shadow: 0 0 0 3px rgba(31, 102, 242, 0.18);
+}
+
+.com-login-btn {
+  height: 48px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 999px;
+  background: var(--rl-blue);
+  color: #fff;
+  font-size: 1.02rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.com-login-btn:hover { background: var(--rl-blue-d); }
+.com-login-btn:disabled { opacity: 0.6; cursor: default; }
+
+.com-login-msg {
+  color: #d93025;
+  font-size: 0.88rem;
+  text-align: center;
+}
+
+.com-login-divider {
+  height: 1px;
+  margin: 6px 0 0;
+  background: #e4e6eb;
+}
+
+.com-login-hint {
+  color: var(--rl-sub);
+  font-size: 0.85rem;
+  text-align: center;
+}
+.com-login-hint b { color: var(--rl-ink); font-weight: 600; }
+
+@media (max-width: 480px) {
+  .com-login-box { width: calc(100vw - 32px); padding: 32px 22px 26px; }
+}

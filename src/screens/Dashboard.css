@@ -1,0 +1,71 @@
+.dashboard {
+  padding: 4px;
+}
+
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+}
+
+.stat-card {
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 16px 12px;
+  text-align: center;
+  background: #fafafa;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.stat-label {
+  color: #777;
+  font-size: 0.85rem;
+  margin-top: 4px;
+}
+
+.dashboard-note {
+  margin-top: 18px;
+  font-size: 0.88rem;
+  color: #666;
+  line-height: 1.6;
+}
+
+.dashboard-note code {
+  background: #eee;
+  border-radius: 4px;
+  padding: 1px 5px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .stat-card {
+    background: #222;
+    border-color: #444;
+  }
+
+  :root:not([data-theme="light"]) .stat-label {
+    color: #aaa;
+  }
+
+  :root:not([data-theme="light"]) .dashboard-note code {
+    background: #333;
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .stat-card {
+  background: #222;
+  border-color: #444;
+}
+
+:root[data-theme="dark"] .stat-label {
+  color: #aaa;
+}
+
+:root[data-theme="dark"] .dashboard-note code {
+  background: #333;
+}
+

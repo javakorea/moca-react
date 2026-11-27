@@ -1,0 +1,227 @@
+/* MOCA React Layout — MOCA moca.css §Layout 의 규칙을 클래스만 바꿔 이식.
+   flex 값은 인라인이 아니라 CSS 변수(--mrl-grow/--mrl-basis)로 받는다 —
+   인라인 flex 는 아래 모바일 미디어쿼리가 못 누르기 때문(MOCA 와 동일한 이유). */
+.mrl {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  height: 100%; /* 루트로 쓰일 때 부모(MDI 패널 등)를 꽉 채운다 */
+  gap: var(--mrl-gap, 15px);
+  box-sizing: border-box;
+}
+
+.mrl-row { flex-direction: row; }    /* h = 가로 */
+.mrl-col { flex-direction: column; } /* v = 세로 */
+
+/* 칸(pane): basis 0 + shrink 로 비율 분할. grow 는 --mrl-grow 로 전달(기본 1 = 균등).
+   숫자·auto 칸 공통 — auto 는 내부적으로 grow 1 이다. grow 0 = 칸 접힘 */
+.mrl > .mrl-pane {
+  flex: var(--mrl-grow, 1) 1 0;
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  box-sizing: border-box;
+}
+
+/* 고정 px 칸(예: 240px): 주축(row=폭 / col=높이) 기준 고정 */
+.mrl > .mrl-pane-fixed {
+  flex: 0 0 var(--mrl-basis, auto);
+}
+
+/* fit 칸: 내용 크기만큼(hug) — 검색영역/버튼줄 */
+.mrl > .mrl-pane-fit {
+  flex: 0 0 auto;
+}
+
+/* 중첩 레이아웃은 자기 칸을 꽉 채운다(높이 체인) */
+.mrl-pane > .mrl {
+  height: 100%;
+}
+
+/* 루트 고정크기(width/height props) — 꽉채움(flex) 해제 후 고정. 넘치면 부모가 스크롤 */
+.mrl.mrl-fixed {
+  flex: none;
+  width: var(--mrl-w, auto);
+  height: var(--mrl-h, auto);
+}
+
+/* ── 모바일(≤768px): 방향 무관 세로 스택 + 페이지 스크롤 (MOCA 동일 분기점) ──
+   데스크톱은 "스크롤 없이 꽉", 모바일은 "세로로 쌓이고 스크롤"이 자연스러운 반응형 */
+@media (max-width: 768px) {
+  .mrl-row,
+  .mrl-col {
+    flex-direction: column;
+  }
+
+  /* 고정높이 해제 → 쌓인 내용이 잘리지 않고 부모에서 스크롤된다 */
+  .mrl {
+    height: auto;
+    min-height: 100%;
+  }
+
+  .mrl > .mrl-pane {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+
+  /* 고정 px 칸도 내용 높이로 풀어 세로 스택 일관성 유지(가로 고정폭이 남지 않게) */
+  .mrl > .mrl-pane-fixed {
+    flex: 0 0 auto;
+  }
+
+  /* 그리드(.mrg — @teammoca/react-grid)가 든 칸은 남은 높이를 채운다.
+     그리드는 내용 높이가 없어 0 0 auto 로 풀면 주저앉는다 (MOCA :has(.moca_grid) 대응) */
+  .mrl > .mrl-pane:has(.mrg) {
+    flex: 1 1 0;
+    min-height: 240px; /* 스택에서 찌그러지지 않는 최소 높이 */
+  }
+
+  /* 같은 사정인 일반 콘텐츠용 표식 — 화면이 자기 박스에 `mrl-fill` 을 붙이면 그 칸도
+     모바일에서 남은 높이를 채운다. 내용이 전부 absolute 이거나(플로팅 버튼 상자) 캔버스처럼
+     내재 높이가 없는 박스는 세로 스택에서 0 으로 주저앉고 화면 아래가 빈 채로 남는다.
+     그리드는 위에서 자동으로 걸리므로 표식이 필요 없다. */
+  .mrl > .mrl-pane:has(.mrl-fill) {
+    flex: 1 1 0;
+    min-height: 160px;
+  }
+
+  /* 화면이 px 토큰으로 그리드 칸 높이를 명시했으면 모바일에서도 그 높이 유지 */
+  .mrl > .mrl-pane-fixed:has(.mrg) {
+    flex: 0 0 var(--mrl-basis, auto);
+    min-height: 0;
+  }
+
+  /* mobileHeights 마커: 모바일 세로스택에서 이 칸만 높이 고정 — PC 완전 무영향.
+     클래스 반복으로 특이성을 만들어 위 규칙들보다 항상 이긴다 (MOCA 동일 수법) */
+  .mrl > .mrl-pane.mrl-pane[data-mobileheight] {
+    flex: 0 0 auto;
+    height: var(--mrl-mbh);
+    min-height: 0;
+  }
+}
+
+/* ── 골격 미리보기 (Alt+L — 개발용, MOCA .moca_layout_debug 이식 간단판) ──
+   루트에 .mrl-debug 가 붙으면 트리 전체에 칸 구조 아웃라인 + 스펙/토큰 라벨을 그리고
+   실제 컴포넌트는 감춘다(visibility — 레이아웃 크기는 유지) */
+.mrl-debug,
+.mrl-debug .mrl {
+  position: relative;
+  outline: 1px solid rgba(0, 240, 255, 0.5);
+  outline-offset: -1px;
+}
+
+.mrl-debug .mrl-pane {
+  position: relative;
+  outline: 1px dashed rgba(0, 240, 255, 0.75);
+  outline-offset: -1px;
+  background: rgba(0, 240, 255, 0.06);
+}
+
+.mrl-debug .mrl-pane > *:not(.mrl) {
+  visibility: hidden;
+}
+
+/* 레이아웃 좌상단 스펙 라벨(vfit:auto …) */
+.mrl-debug::before,
+.mrl-debug .mrl::before {
+  content: attr(data-spec);
+  position: absolute;
+  top: 2px;
+  left: 6px;
+  z-index: 10;
+  font: 700 12px/1.4 ui-monospace, Consolas, monospace;
+  color: #00c8d7;
+  pointer-events: none;
+}
+
+/* 칸 중앙 토큰 라벨(fit · auto · 3 · 240px …) */
+.mrl-debug .mrl-pane::after {
+  content: attr(data-token);
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font: 700 15px ui-monospace, Consolas, monospace;
+  color: rgba(0, 200, 215, 0.9);
+  pointer-events: none;
+}
+
+/* ── 골격 미리보기 토글 FAB (MOCA .moca_layout_debug_fab 이식) ──
+   실체는 @teammoca/react-floating-button — 이 class 가 .mrf 기본 외형(원형 primary)을
+   덮어 "은은한 개발 도구" 모양으로 바꾼다(MOCA 가 .moca_fab 을 덮는 것과 같은 패턴).
+   스크롤 컨테이너(MDI 패널) 안이므로 경계 밖 돌출 없이 우하단 안쪽(right/bottom 0) 배치 */
+.mrl:has(> .mrl-debug-fab) {
+  position: relative; /* FAB 절대배치 기준 */
+}
+
+.mrf.mrl-debug-fab {
+  --mrl-fab-surface: #fffdf9; /* --c-surface (Warm Paper) */
+  --mrl-fab-border: #e7e0d4;  /* --c-border */
+  --mrl-fab-muted: #6b6455;   /* --c-text-muted */
+  --mrl-fab-primary: #0f766e; /* --c-primary */
+
+  right: 0;
+  bottom: 0;
+  z-index: 10;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--mrl-fab-border);
+  background: var(--mrl-fab-surface);
+  color: var(--mrl-fab-muted);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+  opacity: 0.55;
+  transition: opacity 0.15s, color 0.15s, background 0.15s, box-shadow 0.15s, border-color 0.15s;
+}
+
+.mrf.mrl-debug-fab:hover {
+  opacity: 1;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+  color: var(--mrl-fab-primary);
+  border-color: var(--mrl-fab-primary);
+}
+
+.mrf.mrl-debug-fab:active {
+  filter: none; /* .mrf:active 밝기효과 상쇄 — MOCA 동일 */
+}
+
+/* 켜짐 상태 — primary 채움 + 글로우 (MOCA .moca_layout_debug_fab.on) */
+.mrf.mrl-debug-fab.mrl-debug-fab-on {
+  opacity: 1;
+  color: #06131a;
+  background: var(--mrl-fab-primary);
+  border-color: var(--mrl-fab-primary);
+  box-shadow: 0 0 10px var(--mrl-fab-primary);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mrf.mrl-debug-fab {
+    --mrl-fab-surface: #131a21;
+    --mrl-fab-border: #2a3644;
+    --mrl-fab-muted: #93a5b6;
+    --mrl-fab-primary: #14b8a6;
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .mrf.mrl-debug-fab {
+  --mrl-fab-surface: #131a21;
+  --mrl-fab-border: #2a3644;
+  --mrl-fab-muted: #93a5b6;
+  --mrl-fab-primary: #14b8a6;
+}
+
+
+/* 디버그 켜짐 상태에서도 FAB 는 보인다(pane 자식 숨김 규칙의 대상이 아님) —
+   와이어프레임 위에 떠 있어야 다시 끌 수 있다 */
+.mrl-debug > .mrl-debug-fab {
+  visibility: visible;
+}
+
+/* 골격 미리보기 FAB 이 그리드 푸터의 건수를 가리는 것은 **비켜주지 않는다**(사용자 판단
+   2026-08-19). 이 FAB 은 개발용이고 항상 떠서 돌아다니는 존재이며 꾹 눌러 옮길 수 있다 —
+   가릴 때는 옮겨 보면 된다. 콘텐츠 쪽에 padding 을 넣어 자리를 비우면 FAB 이 없는 화면·
+   운영 화면(wireframeButton={false})까지 빈 여백을 떠안는다. 같은 이유로 다른 컴포넌트에도
+   FAB 회피용 여백을 넣지 말 것. */

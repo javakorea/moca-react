@@ -1,0 +1,35 @@
+/* 화면 설계 캔버스 — Puck 은 캔버스를 iframe 에 그리고 바깥 문서의 스타일을 복사해 넣는다.
+   그래서 이 파일의 규칙은 바깥(스튜디오)과 캔버스 양쪽에 걸린다 — 이름을 dz- 로 묶어 섞이지 않게 한다 */
+.designer { position: absolute; inset: 0; }
+.dz-pick, .dz-act { font: inherit; font-size: 13px; padding: 5px 10px; border: 1px solid #c8ccd2; border-radius: 6px; background: #fff; color: #222; cursor: pointer; }
+.dz-act.primary { background: #0b7a75; border-color: #0b7a75; color: #fff; }
+.code-dlg { width: 860px; max-height: calc(100vh - 60px); }
+.code-dlg .code { flex: 1; overflow: auto; margin: 0; padding: 12px; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; font: 12px/1.5 Consolas, 'Malgun Gothic', monospace; white-space: pre; max-height: 60vh; }
+
+/* ── 캔버스 안 ── 화면 하나 크기(MDI 탭 높이쯤)로 고정해 그리드의 「남은 높이 채우기」가 보이게 */
+.dz-root { height: 760px; padding: 12px; box-sizing: border-box; font: 13px/1.45 'Segoe UI', 'Malgun Gothic', sans-serif; color: #1f2937; background: #fff; }
+.dz-root > div { display: flex; flex-direction: column; gap: 8px; height: 100%; }
+/* 칸 크기 기본값 — layoutTokens 의 KIND_TOKEN 과 같다: 제목·검색·안내 = fit, 그리드·나누기 = auto */
+.dz-root > div > *, .dz-split > * { flex: 0 0 auto; min-height: 0; min-width: 0; }
+.dz-root > div > *:has(> [data-kind='Grid']), .dz-root > div > *:has(> [data-kind='Split']),
+.dz-split > *:has(> [data-kind='Grid']), .dz-split > *:has(> [data-kind='Split']) { flex: 1 1 0; display: flex; flex-direction: column; }
+.dz-root > div > *:has(> [data-kind='Fab']), .dz-split > *:has(> [data-kind='Fab']) { flex: 0 0 auto; }
+
+.dz-title { display: flex; align-items: center; gap: 8px; padding: 6px 4px; border-bottom: 2px solid #0b7a75; font-weight: 700; }
+.dz-title-id { color: #0b7a75; font-size: 12px; }
+.dz-title-btn { margin-left: auto; opacity: .6; }
+.dz-dim { color: #8a8f98; font-weight: 400; font-size: 12px; }
+.dz-search { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding: 9px 12px; border: 1px solid #d8dee5; border-radius: 6px; }
+.dz-cond { display: inline-flex; align-items: center; gap: 6px; }
+.dz-cond label { color: #6b7280; }
+.dz-input { display: inline-block; min-width: 120px; height: 26px; line-height: 24px; padding: 0 8px; border: 1px solid #c4ccd5; border-radius: 5px; font-size: 12px; color: #6b7280; box-sizing: border-box; }
+.dz-btn { padding: 4px 14px; border: 1px solid #c4ccd5; border-radius: 5px; }
+.dz-grid { flex: 1; min-height: 160px; height: 100%; }
+.dz-split-wrap { flex: 1; display: flex; flex-direction: column; min-height: 160px; height: 100%; border: 1px dashed #9cc8c5; border-radius: 6px; padding: 4px; box-sizing: border-box; }
+.dz-split-tag { font: 11px Consolas, monospace; color: #0b7a75; padding: 0 4px 4px; }
+.dz-split { flex: 1; display: flex; gap: 8px; min-height: 0; }
+.dz-split.v { flex-direction: column; }
+.dz-split.h > * { min-width: 0; }
+.dz-text { padding: 8px 12px; color: #4b5563; white-space: pre-wrap; background: #f6f8fa; border-radius: 6px; }
+.dz-fab { display: inline-block; padding: 6px 14px; border-radius: 999px; background: #0b7a75; color: #fff; font-weight: 600; }
+.dz-fab .dz-dim { color: #d1f0ee; }

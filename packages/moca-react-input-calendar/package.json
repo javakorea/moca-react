@@ -1,0 +1,20 @@
+{
+  "name": "@teammoca/react-input-calendar",
+  "version": "0.1.0",
+  "description": "MOCA React InputCalendar — dateType 하나로 연·연월·일자·일시를 고르는 입력칸 + 달력 팝업",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

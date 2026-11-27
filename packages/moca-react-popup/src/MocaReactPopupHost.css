@@ -1,0 +1,156 @@
+/* MOCA React Popup — MOCA 팝업(.moca_popup_body 계열) 이식.
+   z-index 사다리(프로젝트 공통 — 새 오버레이를 만들 때 이 순서를 지킨다):
+     플로팅 버튼 6900 < MDI 전체화면 7000 < 셸 메뉴 드로어 7200/7250
+       < 업무 팝업 7500+ < 달력 팝업 7800 < 메시지박스 8000 < 진행 모달 8100
+   업무 팝업이 달력보다 아래인 이유: 팝업 안의 날짜 입력이 달력을 열면 그것이 위에 보여야 한다.
+   셸 메뉴(모바일 햄버거 드로어, 데모 앱 App.css)가 화면 콘텐츠보다 위인 이유: 메뉴는 셸이라
+   화면이 그린 플로팅 버튼에 가리면 안 된다. 반대로 화면이 띄운 모달보다는 아래여야 한다. */
+.mrp-dim {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  box-sizing: border-box;
+}
+
+/* 모달 없이 열기 — 딤을 없애고 클릭이 뒤 화면으로 통과하게 한다(조회용 보조창).
+   창 자체는 다시 pointer-events 를 켜서 조작할 수 있다 */
+.mrp-modeless {
+  background: transparent;
+  pointer-events: none;
+}
+
+.mrp-modeless .mrp-box {
+  pointer-events: auto;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+}
+
+.mrp-box {
+  --mrp-bg: #fffdf9;
+  --mrp-head: #f3efe6;
+  --mrp-border: #d8cfbe;
+  --mrp-text: #4a463c;
+  --mrp-sub: #6b6455;
+  --mrp-primary: #0f766e;
+
+  display: flex;
+  flex-direction: column;
+  width: 560px;
+  max-width: 100%;
+  max-height: 90vh; /* 지정 높이가 없으면 화면을 넘지 않는 선까지(MOCA 와 같은 기준) */
+  background: var(--mrp-bg);
+  color: var(--mrp-text);
+  border: 1px solid var(--mrp-border);
+  border-radius: 8px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.32);
+  overflow: hidden;
+  box-sizing: border-box;
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 13px;
+  animation: mrp-pop 0.13s ease-out;
+}
+
+@keyframes mrp-pop {
+  from { transform: translateY(6px) scale(0.99); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+/* 제목바 */
+.mrp-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  padding: 9px 10px 9px 14px;
+  background: var(--mrp-head);
+  border-bottom: 1px solid var(--mrp-border);
+}
+
+.mrp-head-drag {
+  cursor: move;
+  user-select: none;
+}
+
+.mrp-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mrp-x {
+  margin-left: auto;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--mrp-sub);
+  font-size: 17px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.mrp-x:hover {
+  background: rgba(127, 127, 127, 0.16);
+  color: var(--mrp-text);
+}
+
+/* 본문 — 팝업 화면이 여기서 자기 골격(레이아웃·그리드·버튼)을 그린다 */
+.mrp-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+}
+
+/* 팝업 화면의 루트 — 본문 높이를 그대로 물려주고 자기도 세로 flex 가 된다.
+   flex 로 물려주는 이유: 화면 루트가 block 이면 그 안의 레이아웃(.mrl)의 height:100% 가
+   기준 높이를 찾지 못해(부모가 min-height 만 가진 auto 높이) auto 로 접히고,
+   그러면 목록(auto) 칸이 0 이 되어 그리드가 보이지 않는다. */
+.mrp-body > * {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.mrp-loading {
+  padding: 30px;
+  text-align: center;
+  color: var(--mrp-sub);
+}
+
+/* 드래그 중 텍스트 선택 방지 */
+body.mrp-dragging {
+  user-select: none;
+  cursor: move;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mrp-box {
+    --mrp-bg: #10161d;
+    --mrp-head: #161f29;
+    --mrp-border: #2a3644;
+    --mrp-text: #d5dee7;
+    --mrp-sub: #93a5b6;
+    --mrp-primary: #14b8a6;
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .mrp-box {
+  --mrp-bg: #10161d;
+  --mrp-head: #161f29;
+  --mrp-border: #2a3644;
+  --mrp-text: #d5dee7;
+  --mrp-sub: #93a5b6;
+  --mrp-primary: #14b8a6;
+}
+

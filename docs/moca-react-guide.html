@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="ko" translate="no">
+<head>
+<meta charset="UTF-8">
+<meta name="google" content="notranslate">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="moca-react-guide-version" content="2.33">
+<meta name="moca-react-guide-date" content="2026-11-12">
+<title>MOCA React 사용자·개발자 가이드</title>
+<style>
+  /* ── MOCA 원본 moca-guide.html 과 같은 컨셉: 밝은 종이 톤 단일 디자인(화면 그대로 인쇄) ── */
+  *{ box-sizing:border-box; print-color-adjust:exact; }
+  :root{
+    --ink:#1d2833; --sub:#49566b; --muted:#84909f; --line:#d9e1ea;
+    --primary:#0e7f73; --primary-d:#0a5f56; --soft:#e9f4f2; --accent:#1673b6;
+    --code-bg:#f4f6f9; --code-ink:#26303c; --warn:#b03a2e; --warn-bg:#fdeeec;
+    --mono:'Consolas','D2Coding','Menlo',monospace;
+    --sans:'Pretendard','Malgun Gothic','맑은 고딕',-apple-system,'Segoe UI',sans-serif;
+  }
+  html,body{ margin:0; padding:0; }
+  body{ font-family:var(--sans); color:var(--ink); font-size:14px; line-height:1.7; background:#fff; }
+  .wrap{ max-width:880px; margin:0 auto; padding:32px 22px 90px; }
+  h1,h2,h3,h4{ line-height:1.35; margin:0; }
+  h1{ font-size:1.7rem; }
+  h2{ font-size:1.25rem; color:var(--primary-d); border-bottom:2px solid var(--line); padding-bottom:8px; margin:52px 0 14px; }
+  h3{ font-size:1.02rem; color:var(--accent); margin:30px 0 8px; }
+  p{ margin:.55em 0; }
+  ul,ol{ margin:.4em 0 .8em; padding-left:1.5em; }
+  li{ margin:.22em 0; }
+  a{ color:var(--primary); text-decoration:none; }
+  a:hover{ text-decoration:underline; }
+  code{ font-family:var(--mono); font-size:.9em; background:var(--code-bg); padding:1px 5px; border-radius:4px; color:var(--code-ink); }
+  pre{ background:var(--code-bg); border:1px solid var(--line); border-radius:8px; padding:12px 14px; overflow-x:auto; line-height:1.55; }
+  pre code{ background:none; padding:0; font-size:12.5px; display:block; }
+  table{ border-collapse:collapse; width:100%; margin:.7em 0 1em; font-size:13px; }
+  th,td{ border:1px solid var(--line); padding:6px 10px; text-align:left; vertical-align:top; }
+  th{ background:var(--soft); color:var(--primary-d); font-weight:700; white-space:nowrap; }
+  .note{ background:var(--soft); border-left:4px solid var(--primary); border-radius:0 8px 8px 0; padding:10px 14px; margin:.8em 0; }
+  .warn{ background:var(--warn-bg); border-left:4px solid var(--warn); border-radius:0 8px 8px 0; padding:10px 14px; margin:.8em 0; }
+  .meta{ color:var(--muted); font-size:.85rem; margin:6px 0 26px; }
+  .toc{ background:var(--code-bg); border:1px solid var(--line); border-radius:10px; padding:16px 20px; }
+  .toc b{ color:var(--primary-d); }
+  .toc ul{ margin:.3em 0 .6em; }
+  .kbd{ font-family:var(--mono); font-size:.85em; border:1px solid var(--line); border-bottom-width:2px; border-radius:4px; padding:0 5px; background:#fff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>MOCA React 사용자·개발자 가이드</h1>
+<div class="meta">v2.33 · 2026-11-12 — MOCA 프레임워크의 React 구현체.
+API 낱낱의 목록은 <a href="moca-react-api.html">moca-react-api.html</a>(카탈로그 생성 문서)를 본다.
+이 가이드는 "어떻게 쓰고, 어떻게 만드는가"를 설명한다.</div>
+
+<div class="toc">
+<b>차례</b>
+<ul>
+  <li><b>사용자 가이드</b>
+    <ul>
+      <li><a href="#u1">U1. 화면 구성 — 상단 메뉴 · 좌측 메뉴 · 작업 영역</a></li>
+      <li><a href="#u2">U2. 메뉴 사용법 — 화면 열기와 접기/펼치기</a></li>
+      <li><a href="#u3">U3. 작업 탭(MDI) — 전환 · 닫기 · 화면분할 · 드래그 이동</a></li>
+      <li><a href="#u4">U4. 그리드 — 스크롤 · 행 선택 · 찾기 · 툴바</a></li>
+      <li><a href="#u5">U5. 테마</a></li>
+      <li><a href="#u6">U6. 모바일(좁은 화면) — 햄버거 메뉴 · 탭바 없음</a></li>
+    </ul>
+  </li>
+  <li><b>개발자 가이드</b>
+    <ul>
+      <li><a href="#d1">D1. 빠른 시작</a></li>
+      <li><a href="#d2">D2. 프로젝트 구조와 폴더별 책임</a></li>
+      <li><a href="#d3">D3. 새 화면 만들기</a></li>
+      <li><a href="#d4">D4. 서버 연동 — 실 데이터 조회·저장 (tran)</a></li>
+      <li><a href="#d5">D5. MocaReactGrid 사용</a></li>
+      <li><a href="#d6">D6. MocaReactMdi 사용</a></li>
+      <li><a href="#d7">D7. MocaReactLayout — 화면 골격 (분할·반응형)</a></li>
+      <li><a href="#d8">D8. MocaReactFloatingButton — 떠 있는 액션 버튼(FAB)</a></li>
+      <li><a href="#d9">D9. 달력 4종 — 날짜 · 기간 · 붙박이 · 일정</a></li>
+      <li><a href="#d10">D10. 메시지박스 — alert · error · confirm · 진행 모달</a></li>
+      <li><a href="#d11">D11. 팝업 — 화면을 모달로 띄우고 결과 받기</a></li>
+      <li><a href="#d12">D12. MocaReactEchart — 차트 (Apache ECharts 래퍼)</a></li>
+      <li><a href="#d13">D13. MocaReactSearchCombo — 검색형 콤보</a></li>
+      <li><a href="#d14">D14. 아키텍처 노트 — 왜 이렇게 만들었나</a></li>
+      <li><a href="#d15">D15. 문서·스킬 관리 체계 (skill · catalog · api · guide)</a></li>
+      <li><a href="#d16">D16. 검증 방법</a></li>
+      <li><a href="#d17">D17. MOCA React Studio — 브라우저에서 화면 만들기</a></li>
+    </ul>
+  </li>
+</ul>
+</div>
+
+<!-- ══════════════════════════ 사용자 가이드 ══════════════════════════ -->
+
+<h2 id="u1">U1. 화면 구성 — 상단 메뉴 · 좌측 메뉴 · 작업 영역</h2>
+<p>화면은 세 부분으로 나뉜다.</p>
+<table>
+<tr><th>영역</th><th>역할</th></tr>
+<tr><td>상단 메뉴바</td><td><b>1단 메뉴(그룹)</b>. 대시보드 · 업무 · 샘플처럼 큰 분류를 고른다. 지금 선택된 그룹은 진하게 표시된다. 오른쪽의 <b>메뉴 검색칸</b>으로 그룹을 거치지 않고 화면을 바로 찾아 열 수도 있다(<a href="#u2">U2</a>).</td></tr>
+<tr><td>좌측 메뉴</td><td><b>2단 메뉴(화면)</b>. 상단에서 고른 그룹에 속한 화면 목록. 클릭하면 작업 탭으로 열린다. 이미 열려 있는 화면은 파란색으로 표시된다.</td></tr>
+<tr><td>작업 영역</td><td>열린 화면들이 <b>탭</b>으로 쌓이는 곳(MDI). 탭 전환·닫기·화면분할이 여기서 이뤄진다.</td></tr>
+</table>
+<p><b>로그인 직후</b>에는 <b>샘플 › 가상 그리드</b> 화면이 자동으로 열려 있다(상단 메뉴도 <b>샘플</b>로 맞춰진다) —
+빈 작업 영역 대신 바로 볼 것을 주기 위해서다. 이 탭을 닫으면 그대로 닫힌 채 남고,
+다시 로그인하면 또 열린다.</p>
+
+<h2 id="u2">U2. 메뉴 사용법 — 화면 열기와 접기/펼치기</h2>
+<ul>
+  <li><b>화면 열기</b> — 상단에서 그룹을 고르고, 좌측 메뉴에서 화면을 클릭한다. 같은 화면을 다시 클릭하면 새로 열리지 않고 이미 열린 탭이 앞으로 나온다.</li>
+  <li><b>메뉴 검색</b> — 상단 메뉴바의 <b>검색칸</b>에 몇 글자만 치면 해당하는 화면이 목록으로 좁혀지고,
+    고르면 그 화면이 바로 열린다(좌측 메뉴도 그 화면이 속한 그룹으로 맞춰진다). 화면 이름뿐 아니라
+    <b>화면키</b>(예: <code>gridtest</code>)나 <b>그룹 이름</b>으로도 걸린다 —
+    어느 그룹에 있는지 몰라도 이름 몇 글자면 찾을 수 있다.
+    <span class="kbd">↓</span> <span class="kbd">↑</span> 로 고르고 <span class="kbd">Enter</span> 로 열 수 있으며,
+    <span class="kbd">Esc</span> 로 목록을 닫는다. 좁은 화면에서는 검색칸이 햄버거 메뉴 안(<a href="#u6">U6</a>)으로 들어간다.</li>
+  <li><b>메뉴 접기</b> — 좌측 메뉴 오른쪽 위의 <span class="kbd">«</span> 버튼을 누르면 메뉴가 좁은 띠로 접혀 작업 영역이 넓어진다. <span class="kbd">»</span> 를 누르면 다시 펼쳐진다.</li>
+  <li><b>메뉴 색으로 상태 구분</b> — <b>열려 있음</b>(탭으로는 떠 있지만 지금 보고 있지 않은 화면)은 옅은 배경,
+    <b>지금 보고 있음</b>은 진한 배경 + 왼쪽 강조 바로 표시된다. 화면분할 중이면 두 화면이 동시에 "보고 있음"이 된다.</li>
+  <li><b>메뉴에서 화면 닫기</b> — 열려 있는 화면에는 오른쪽 끝에 <span class="kbd">×</span> 가 나타난다.
+    누르면 <b>"[화면명] 화면을 닫으시겠습니까?"</b> 를 한 번 묻고, 확인하면 닫히면서 강조 배경도 사라진다.
+    탭바가 없는 <b>모바일에서는 이것이 유일한 닫기 수단</b>이다(<a href="#u6">U6</a>).
+    (작업 탭의 <span class="kbd">×</span> 는 그 화면을 보면서 누르는 것이라 묻지 않고 바로 닫는다.)</li>
+  <li><b>로그아웃</b> — 열려 있는 화면이 전부 닫히고 세션이 끊기므로 한 번 묻는다.
+    열린 화면이 있으면 <b>"열려 있는 화면 N개가 닫힙니다"</b> 가 함께 표시된다.</li>
+</ul>
+
+<h2 id="u3">U3. 작업 탭(MDI) — 전환 · 닫기 · 화면분할 · 드래그 이동</h2>
+<ul>
+  <li><b>전환</b> — 탭을 클릭한다. 탭을 오갔다 돌아와도 화면 상태(그리드 스크롤 위치·선택한 행 등)는 그대로 유지된다.</li>
+  <li><b>닫기</b> — 탭의 × 버튼. 탭바 우측 휴지통 버튼은 <b>전체닫기</b>(확인 후 일괄 닫기). 고정탭은 닫기 버튼이 없다.</li>
+  <li><b>화면분할</b> — 탭바 우측 분할 버튼을 누르면 작업 영역이 좌우 두 패널로 나뉜다. 두 화면을 나란히 놓고 비교할 때 쓴다. 다시 누르면 병합되고, 서브 패널의 탭들은 메인 탭바에 합류해 계속 쓸 수 있다.</li>
+  <li><b>탭 드래그 이동</b> — 분할 상태에서 탭을 잡아 반대쪽 패널에 떨어뜨리면 화면이 그쪽으로 이동한다. 빈 패널에는 "탭을 드래그하여 이곳에 놓으세요" 안내가 나온다.</li>
+  <li><b>패널 폭 조절</b> — 두 패널 사이 세로 바를 잡아 끈다(양쪽 최소 280px).</li>
+  <li><b>좁은 화면(≤768px)</b> — 탭바가 통째로 사라지고 화면 전환은 메뉴가 맡는다(<a href="#u6">U6</a>).</li>
+</ul>
+
+<h2 id="u4">U4. 그리드 — 스크롤 · 행 선택 · 찾기 · 툴바</h2>
+<ul>
+  <li><b>스크롤</b> — 휠 또는 우측 전용 스크롤바. 10만 행이라도 빠르게 스크롤할 때 빈 화면이 번쩍이지 않는다(구조적으로 발생하지 않게 설계됨).
+    <b>터치 기기</b>에서는 표 위를 손가락으로 밀면 그대로 스크롤된다(관성 포함) — 우측 막대로 현재 위치가 표시되고
+    <b>그 막대를 잡아끌면 단번에 이동</b>한다(10만 행에서 뒷부분으로 갈 때. 밀기만으로는 화면 몇 개씩만 넘어간다),
+    가로로 밀면 컬럼이 좌우로 움직인다. 행을 누르는 것(선택·트리 접기 등)은 종전과 같다.</li>
+  <li><b>행 선택</b> — 행을 클릭하면 배경색과 좌측 색 바로 표시된다. 화면 밖으로 스크롤했다 돌아와도 유지된다.</li>
+  <li><b>컬럼 폭 조절</b> — 헤더의 컬럼 경계를 잡아 끈다(<b>마우스·손가락 공통</b> — 터치에서는 잡는 자리가 더 넓다). 폭 합계가 그리드보다 커지면 가로 스크롤이 생긴다.</li>
+  <li><b>특수컬럼</b> — 왼쪽 고정 3종: 행상태(C 신규 · U 수정 · D 삭제를 색으로), 행번호, 삭제체크(헤더 체크박스는 전체선택).</li>
+  <li><b>툴바</b> — 제목이 있는 그리드 상단에 표시: 제목 · <b>찾기</b>(모든 컬럼 부분일치, <span class="kbd">Enter</span>/[다음]마다 다음 매치 행으로 이동·순환) · <b>행높이</b> 셀렉트 · <b>전체화면</b> 버튼(다시 누르면 원래 크기). <b>건수는 툴바가 아니라 하단 푸터에 있다.</b></li>
+  <li><b>정렬</b> — 헤더의 <span class="kbd">▲▼</span> 를 누르면 그 컬럼으로 정렬된다.
+    누를 때마다 <b>오름차순 → 내림차순 → 원래대로</b> 로 바뀌고, 지금 어느 쪽인지는 삼각형 색으로 보인다.
+    한 번에 한 컬럼만 걸린다(다른 컬럼을 누르면 그쪽으로 옮겨간다). 값이 비어 있는 행은 어느 방향이든 뒤로 간다.</li>
+  <li><b>필터</b> — 헤더의 <span class="kbd">깔때기</span> 를 누르면 그 컬럼에 <b>실제로 들어 있는 값</b>이
+    건수와 함께 나온다. 보고 싶은 값만 남기고 [적용]. 값이 많으면 위 칸에 검색어를 넣어 좁히고,
+    [건수순]/[가나다순] 으로 늘어놓는 차례를 바꾼다.
+    <ul>
+      <li>여러 컬럼에 걸면 <b>모두 만족하는 행</b>만 남는다(AND).</li>
+      <li>걸려 있는 동안 깔때기에 색이 들어오고, 푸터 건수가 <b>"필터 40,000/100,000건"</b> 으로 바뀐다.
+        툴바의 <b>[필터 해제]</b> 로 한 번에 전부 푼다.</li>
+      <li>전체를 고른 채 [적용] 하면 그 컬럼 필터를 푼 것과 같다.</li>
+      <li>사번처럼 값이 다 다른 컬럼은 목록이 너무 커서 열리지 않는다 — 그럴 땐 툴바의 <b>찾기</b>를 쓴다.</li>
+    </ul></li>
+  <li><b>정렬·필터를 바꿔도</b> 골라 둔 행(선택·삭제체크)은 그대로 따라온다.
+    다만 <b>다시 조회하면</b> 정렬·필터·선택이 모두 풀린다(새 목록이므로).</li>
+  <li><b>트리</b> — 메뉴 트리 같은 계층 화면에서는 첫 컬럼이 트리로 그려진다. 부모 노드의
+    <span class="kbd">−</span> 를 누르면 그 아래가 접히고(<span class="kbd">+</span> 로 바뀜), 다시 누르면 접기 전에
+    펼쳐져 있던 모습 그대로 복원된다(하위에서 접어 둔 것은 접힌 채 유지).
+    리프(끝) 노드는 점(•)으로 표시된다. 접힌 것이 있으면 푸터에 "표시 N건(접힘 제외)"가 나온다.</li>
+  <li><b>소계/합계</b> — 판매실적 같은 집계 화면에서는 그룹(예: 지역)이 끝날 때마다 <b>소계</b>행이,
+    맨 아래(또는 위)에는 <b>합계</b>행이 표시된다. 합계행은 스크롤해도 항상 제자리에 고정된다.
+    같은 값이 이어지는 컬럼(예: 지역)은 세로로 병합되어 한 번만 표시된다.</li>
+  <li><b>셀 편집</b> — 고칠 수 있는 칸(마우스를 올리면 글자 커서)을 <b>더블클릭</b>(폰은 두 번 톡)하면 그 자리에 입력칸이 뜬다.
+    <span class="kbd">Enter</span> 또는 다른 곳을 누르면 반영, <span class="kbd">Esc</span> 는 취소,
+    <span class="kbd">Tab</span>/<span class="kbd">Shift+Tab</span> 은 같은 행의 다음/앞 칸으로 넘어간다.
+    목록에서 고르는 칸은 고르는 즉시, 체크 칸은 한 번 클릭으로 바뀐다.
+    고친 행은 행상태 칸에 <b>U</b> 가 붙고, 원래 값으로 되돌리면 다시 떨어진다.</li>
+  <li><b>다단 헤더</b> — 머리글이 두 줄 이상이면 위 줄의 묶음 제목(예: "급여")이 아래 칸들 위로 걸쳐 있다.
+    정렬·필터·폭 조절은 아래 줄 칸에서 한다. 본문에서도 행에 따라 여러 칸이 하나로 합쳐질 수 있다(예: 휴직자의 급여 칸).</li>
+  <li><b>엑셀</b> — 툴바의 엑셀 아이콘을 누르면 <b>지금 보이는 대로</b>(필터·정렬 결과, 병합, 소계·합계 포함)
+    .xlsx 파일로 내려받는다. 숫자 칸은 엑셀에서도 숫자라 바로 더할 수 있다.</li>
+  <li><b>푸터</b> — 좌우로 나뉜다.
+    <b>왼쪽(지금 보고 있는 것)</b>: 찾기를 실행했으면 "검색 20,000건 · 2번째", 선택한 행이 있으면 "9행".
+    <b>오른쪽(전체 규모)</b>: "총 N건" + 트리에서 접은 것이 있으면 "· 표시 N건(접힘 제외)",
+    삭제체크가 있으면 "· 선택 N건".
+    (렌더링 구간·DOM 행수는 가상 스크롤 개발 중 쓰던 표시라 걷어냈다.)</li>
+</ul>
+
+<h2 id="u5">U5. 테마</h2>
+<p><b>좌측 메뉴 맨 위의 [테마]</b>에서 고른다(MOCA 헤더의 테마 선택 대응 — 여기 헤더는 48px 이라
+모바일에서 자리가 없어 메뉴 위로 옮겼다). 고르면 <b>즉시</b> 바뀌고 새로고침해도 유지된다.</p>
+<table>
+<tr><th>선택</th><th>동작</th></tr>
+<tr><td>🖥️ 시스템(기본)</td><td>OS 의 라이트/다크 설정을 따라간다. OS 설정을 바꾸면 화면도 따라 바뀐다.</td></tr>
+<tr><td>☀️ 라이트</td><td>Warm Paper — OS 가 다크여도 라이트로 고정.</td></tr>
+<tr><td>🌙 다크</td><td>Technical Dark(MOCA demo 기본) — OS 가 라이트여도 다크로 고정.</td></tr>
+</table>
+<p>MOCA 의 <b>고대비</b>는 아직 없다 — 팔레트가 라이트·다크 두 벌뿐이라, 고대비를 넣으려면
+컴포넌트마다 세 번째 토큰 세트를 더해야 한다.</p>
+
+<h2 id="u6">U6. 모바일(좁은 화면) — 햄버거 메뉴 · 탭바 없음</h2>
+<p>가로 <b>768px 이하</b>에서는 MOCA 데모와 같은 규칙으로 화면이 바뀐다(MOCA <code>mobile.css</code> 이식).
+폭에만 반응하므로 PC 브라우저 창을 좁혀도 똑같이 동작한다.</p>
+<table>
+<tr><th>바뀌는 것</th><th>동작</th></tr>
+<tr><td>메뉴</td><td>상단 1단 메뉴가 사라지고 헤더 왼쪽에 <b>햄버거 버튼</b>이 생긴다. 누르면 좌측 메뉴가 화면 위로 미끄러져 나오며(드로어), 그 안에 <b>1단(그룹)과 2단(화면)이 함께</b> 들어 있다 — MOCA 의 좌측 메뉴 트리와 같은 모양이 된다.</td></tr>
+<tr><td>메뉴 검색</td><td>상단 메뉴바에 있던 <b>검색칸이 드로어 맨 위</b>로 들어간다(테마 선택과 같은 자리). 좁은 폭에서는 헤더에 햄버거·로고·로그아웃까지 있어 자리가 없기 때문이고, 동작은 데스크톱과 같다 — 고르면 화면이 열리면서 드로어가 닫힌다(<a href="#u2">U2</a>).</td></tr>
+<tr><td>드로어 닫기</td><td>화면을 하나 고르면 자동으로 닫힌다. 어두운 배경을 누르거나 <span class="kbd">ESC</span> 로도 닫힌다. <b>그룹만 바꾸는 것은 닫지 않는다</b> — 그룹을 고른 뒤 그 안의 화면을 이어서 고르기 때문.</td></tr>
+<tr><td>작업 탭</td><td><b>탭바가 통째로 사라진다.</b> 170px 짜리 탭은 두어 개만 열려도 좁은 폭을 다 먹는다. 화면 전환은 메뉴로 한다 — 이미 열려 있는 화면을 메뉴에서 고르면 새로 열리지 않고 그 화면이 앞으로 나온다. 분할·전체닫기 버튼도 함께 사라진다.</td></tr>
+<tr><td>화면분할</td><td>분할해 둔 채로 창을 좁히면 좌우가 아니라 <b>위아래</b>로 나뉜다. 패널 폭 조절 바는 사라진다.</td></tr>
+<tr><td>화면 골격</td><td>레이아웃의 칸이 방향과 무관하게 세로로 쌓인다(<a href="#d7">D7</a>).</td></tr>
+<tr><td>그리드 스크롤</td><td>표 위를 손가락으로 밀면 스크롤된다(<a href="#u4">U4</a>). 폭이 아니라 <b>입력 방식</b>(손가락 여부)으로 켜지므로, 폭이 넓은 태블릿에서도 동작한다.</td></tr>
+<tr><td>달력</td><td>입력칸 옆에 붙는 작은 팝업 대신 <b>화면 가운데 큰 달력</b>으로 열린다(뒤 배경은 어두워진다). 날짜 칸이 손가락 크기로 커지고, 기간 달력은 시작·종료 두 판이 세로로 쌓인다. 일시(시각까지) 타입의 <b>시·분 고르는 칸</b>도 줄 폭을 나눠 크게 열린다(초는 고르지 않는다).</td></tr>
+<tr><td>기타</td><td>사용자 이름과 메뉴 접기 버튼은 표시하지 않는다. 화면 높이는 <code>svh</code> 기준이라 모바일 브라우저 주소창에 아래가 잘리지 않는다.</td></tr>
+</table>
+<p><b>화면 닫기</b> — 탭바가 없어도 닫을 수 있다. <b>좌측 메뉴에서 열려 있는 화면 오른쪽 끝의
+<span class="kbd">×</span></b> 를 누르면 확인을 한 번 물은 뒤 그 화면이 닫히고 강조 배경도 함께 사라진다(<a href="#u2">U2</a>).
+MOCA 데모는 모바일에서 닫을 수단이 없는데, 그건 불편해서 React 판에 더한 것이다.</p>
+
+<!-- ══════════════════════════ 개발자 가이드 ══════════════════════════ -->
+
+<h2 id="d1">D1. 빠른 시작</h2>
+<pre><code>cd C:\_teammoca_projects\eclipse\worksapce\moca_react
+npm install        # 처음 받았을 때만
+npm run dev        # → http://localhost:5173</code></pre>
+<table>
+<tr><th>명령</th><th>설명</th></tr>
+<tr><td><code>npm run dev</code></td><td>Vite 개발 서버 (HMR)</td></tr>
+<tr><td><code>npm run build</code></td><td>프로덕션 빌드</td></tr>
+<tr><td><code>npm run lint</code></td><td>oxlint</td></tr>
+<tr><td><code>npm run apidoc</code></td><td><code>docs/catalog.js</code> → <code>docs/moca-react-api.html</code> 재생성</td></tr>
+</table>
+<div class="note"><b>데이터를 보려면 MOCA 서버도 함께 띄운다</b> — 화면들이 MOCA 서버(8080)의
+공용 쿼리 API 로 실 데이터를 조회한다(<a href="#d4">D4</a>). <code>MOCA2026PORTABLE</code> 에서
+<code>powershell -ExecutionPolicy Bypass -File tools\mvn.ps1 spring-boot:run</code> 실행 후
+React 앱에서 <code>moca / moca</code> 로 로그인한다.</div>
+
+<h2 id="d2">D2. 프로젝트 구조와 폴더별 책임</h2>
+<pre><code>moca_react/
+├─ src/                       ← 데모 앱 (Vite + React 19) — 배포 안 됨
+│  ├─ App.jsx                ←   셸: 상단 1단 메뉴 + 좌측 2단 메뉴 + MocaReactMdi
+│  └─ screens/               ←   화면들 + registry.jsx(메뉴 트리 = 화면 등록처)
+├─ packages/                  ← ★ 배포 단위 (npm workspaces 링크 — 수정 즉시 반영)
+│  ├─ moca-react-grid/        ←   @teammoca/react-grid
+│  ├─ moca-react-mdi/         ←   @teammoca/react-mdi
+│  └─ …                      ←   layout · popup · msgbox · 달력 · 차트 · 검색콤보 …
+├─ docs/                      ← catalog.js(API 단일 선언부) · moca-react-api.html(생성) · 이 가이드
+├─ vite.config.js             ← /common → MOCA 서버(8080) 프록시 (개발용, D4)
+├─ tools/apidoc-gen.cjs       ← API 문서 생성기
+└─ .claude/skills/            ← 컴포넌트·화면 작업용 스킬 (grid · mdi · layout · screen …)</code></pre>
+<div class="note">패키지 공개 API 는 각 패키지 <code>src/index.js</code> 한 곳으로만 노출한다.
+데모 앱도 사용자와 같은 방식(<code>import { MocaReactGrid } from '@teammoca/react-grid'</code>)으로 쓴다.</div>
+
+<h2 id="d3">D3. 새 화면 만들기</h2>
+<div class="note"><b>frame 은 없다</b> — MOCA 의 frame(별도 소스·스코프 화면 영역)이 하던 일은 React 에선
+컴포넌트가 그대로 한다: 재사용 조각 = 일반 컴포넌트, 스코프 격리 = 인스턴스별 state/ref(구조적 해결),
+부모↔자식 통신 = props/콜백, src 지연 로드 = lazy, 오류 격리 = ErrorBoundary(셸이 탭마다 자동).</div>
+<ol>
+  <li><b>화면 컴포넌트 작성</b> — <code>src/screens/이름.jsx</code> (+ 필요 시 같은 이름의 <code>.css</code>).
+    화면 루트는 부모(MDI 패널)를 채우게 만든다. 그리드가 주인 화면이면 <code>height</code> 를 주지 않는다(부모 100% 반응형).</li>
+  <li><b>레지스트리 등록</b> — <code>src/screens/registry.jsx</code> 에 <b>lazy 선언 한 줄 + 그룹
+    <code>children</code> 등록 한 줄</b>. 등록만 하면 좌측 메뉴에 자동으로 나타나고 MDI 탭으로 열린다.
+    App.jsx 는 건드리지 않는다.
+<pre><code>const UserList = lazy(() =&gt; import('./UserList'))   // 탭을 처음 열 때 청크 로드
+{ key: 'userlist', title: '사원 목록', icon: '👥', component: UserList }</code></pre>
+    화면은 전부 lazy 로딩이다(MOCA frame 의 화면 지연 로드 대응) — 빌드 시 화면별 청크로
+    잘리고, 그 화면만 쓰는 라이브러리(차트의 echarts 등)도 함께 분리된다.
+    새 1단 그룹이 필요하면 <code>menus</code> 배열에 <code>{ key, title, icon, children: [...] }</code> 를 추가한다.</li>
+  <li><b>(선택) 로그인 직후 열 화면 바꾸기</b> — <code>src/App.jsx</code> 맨 위의 <code>INITIAL_SCREEN</code>
+    한 줄만 고친다. 레지스트리의 <b>그룹 key · 화면 key</b> 로 가리키며, <code>null</code> 이면 빈 화면으로 시작한다.
+<pre><code>const INITIAL_SCREEN = { group: 'sample', screen: 'gridtest' }</code></pre>
+    여는 시점은 <code>auth.state</code> 가 <code>'in'</code> 이 되는 순간뿐이다 — 탭이 비었는지로 판단하면
+    사용자가 닫을 때마다 되살아나 싸우게 된다.</li>
+  <li><b>검증</b> — dev 서버에서 메뉴 클릭 → 탭 열림 → 닫기/재오픈 확인. (<a href="#d15">D15</a>)</li>
+</ol>
+<h3>공통 조각(com/)과 menuInfo — MOCA frame/COM_* 대응</h3>
+<p>여러 화면이 같이 쓰는 조각(MOCA 의 <code>/ui/com/COM_TITLE.html</code> 류)은
+<code>src/screens/com/</code> 폴더의 <b>일반 컴포넌트</b>로 만든다. 부모와의 통신은
+<code>$p.getParent()</code> 대신 props/콜백 — 부모가 필요한 통로만 내려준다.</p>
+<pre><code>// 셸이 모든 화면에 menuInfo 를 자동 주입한다 (MOCA frame 의 getParameter() 대응)
+function SaleAgg({ menuInfo }) {
+  return (
+    &lt;MocaReactLayout layout="vfit:auto"&gt;
+      &lt;ComTitle menu={menuInfo} onRefresh={fnSearch} /&gt;  {/* [ID]·아이콘·제목·브레드크럼 */}
+      ...
+    &lt;/MocaReactLayout&gt;
+  )
+}</code></pre>
+<p><b>이 골격은 모든 화면에 예외 없이 적용한다</b> — 루트 div(패딩) → <code>MocaReactLayout</code> →
+<code>ComTitle</code> + 내용. ComTitle 이 빠지면 그 화면만 제목·경로가 없고, MocaReactLayout 이
+빠지면 골격 미리보기 FAB(<span class="kbd">Alt+L</span>)도 붙지 않는다.
+<b>ComTitle 을 넣으면 칸이 하나 늘므로 layout 토큰도 함께 고친다</b>(<code>vfit:auto</code> →
+<code>vfit:fit:auto</code>) — 토큰 개수와 자식 개수는 항상 같아야 한다.</p>
+<p><b>브레드크럼은 상위 경로만</b> 보여준다(🏠 › 샘플). 마지막 칸은 현재 화면이고 그 이름은 바로 옆
+제목에 이미 적혀 있어서, 두 번 쓰면 좁은 폭에서 자리만 먹는다. <code>menuInfo.path</code> 에는
+셸이 <code>[그룹, 화면]</code> 을 넣고 ComTitle 이 마지막 하나를 뺀다 — 직접 넘길 때도
+"현재 화면까지 포함한 전체 경로"를 주면 된다.</p>
+<p>화면 렌더링 오류는 셸의 <b>ErrorBoundary</b> 가 탭 단위로 격리한다 — 한 화면이 죽어도
+그 탭에만 오류 안내가 뜨고 셸·다른 탭은 산다(MOCA frame 의 오류 경계 대응). 화면 코드 0줄.</p>
+<div class="note"><code>key</code> 는 전역 유일해야 한다 — 같은 key 의 탭은 중복으로 열리지 않고 활성화만 된다.
+기존 예: <code>UserList.jsx</code>(검색+그리드), <code>GridTest.jsx</code>(10만 행 대용량).</div>
+
+<h2 id="d4">D4. 서버 연동 — 실 데이터 조회·저장 (tran)</h2>
+<p>데이터는 <b>MOCA 서버(Spring Boot 8080)의 공용 쿼리 API 를 그대로</b> 쓴다 — 별도 백엔드를
+만들지 않는다. 화면은 SQL 을 모르고 <code>queryId</code> 만 알며, SQL 은 서버 매퍼
+(<code>MOCA2026PORTABLE/src/main/resources/mapper/MocaMapper.xml</code>)에 있다. MOCA 와 같은 계약이다.</p>
+<pre><code>React(5173) ──/common/*── Vite 프록시 ──&gt; MOCA Spring Boot(8080) ──&gt; H2 (data/moca.mv.db)</code></pre>
+<div class="note"><b>프록시가 핵심</b> — 브라우저에 전부 5173 동일 출처로 보이게 해야 세션(JSESSIONID)·
+CSRF 쿠키가 동작한다(교차 출처로 직접 호출하면 막힌다). 설정은 <code>vite.config.js</code>.
+운영은 <code>dist</code> 를 같은 WAS 에 올려 자연히 동일 출처가 되므로 프록시는 개발용이다.</div>
+
+<h3>서버 기동과 로그인</h3>
+<pre><code># MOCA2026PORTABLE 에서
+powershell -ExecutionPolicy Bypass -File tools\mvn.ps1 spring-boot:run   # → 8080, H2 준비</code></pre>
+<p>서버는 <b>기본 차단(default deny)</b> 정책이라 로그인 세션이 없으면 조회도 거부한다(401).
+셸이 부팅 시 <code>tran.sessionCheck()</code> 로 확인해 미로그인이면 <code>ComLogin</code> 화면만
+보여주고, 통신 중 401 을 받으면 다시 로그인 화면으로 돌아간다. 데모 계정은 <code>moca / moca</code>.</p>
+
+<h3>화면에서 데이터 쓰기</h3>
+<pre><code>import { useSelect, tran } from '@teammoca/react-tran'
+
+function SaleAgg({ menuInfo }) {
+  const [cond, setCond] = useState({ REGION_NM: '' })
+
+  // 선언적 조회 — cond 가 바뀌면 자동 재조회(SQL 의 &lt;if&gt; 절이 조건을 받는다)
+  const { rows, loading, error, reload } = useSelect('selectTdemoSaleDtlList', cond)
+
+  return &lt;MocaReactGrid columns={cols} data={rows} subtotal="REGION_NM" /&gt;
+}
+
+// 저장은 명령형 — 행상태(C/U/D)를 서버가 분기 실행한다(그리드 행상태와 같은 규약)
+await tran.save({ insertQueryId: 'insertDemoUser', updateQueryId: 'updateDemoUser', list: rows })</code></pre>
+<ul>
+  <li>응답 row 는 <b>대문자 컬럼 키</b>로 읽는다(<code>row.SALE_AMT</code>).</li>
+  <li>CSRF 토큰(쿠키→헤더)·세션 쿠키·401/403 처리·<code>list1</code> 언랩은 tran 이 대신한다 —
+    화면 코드에 없다(MOCA 엔진이 하던 일과 같다).</li>
+  <li>검색조건이 빠르게 바뀌어도 늦게 온 응답이 새 결과를 덮지 않는다(useSelect 경합 처리).</li>
+  <li>실 데이터 화면 예: 판매실적 소계/합계(<code>selectTdemoSaleDtlList</code> + 콤보 2종),
+    대시보드 차트 3종(<code>selectDashSalesMonthly</code> 등), 메뉴 트리(<code>selectDemoMenuDemoList</code>),
+    사용자 목록(<code>selectDemoUserList</code>),
+    <b>메뉴관리</b>(조회·콤보 + <code>tran.save</code> 로 등록/수정/삭제 — MOCA TPL019 와 같은 서비스).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-tran">API 문서의 tran</a> 절.</p>
+
+<h2 id="d5">D5. MocaReactGrid 사용</h2>
+<pre><code>import { MocaReactGrid } from '@teammoca/react-grid'
+
+&lt;MocaReactGrid
+  label="사원 목록"                 // 지정하면 툴바(제목+찾기·전체화면) 표시 — 건수는 푸터
+  columns={[{ key: 'name', title: '이름', width: 120 }, { key: 'dept', title: '부서' }]}
+  data={rows}                        // 셀 값은 row[key]
+  onRowSelected={(row, idx) =&gt; ...}  // idx 는 data 기준 절대 인덱스
+  search rowHeightSelect             // 자체 기능: 찾기 · 행높이 셀렉트
+/&gt;</code></pre>
+<ul>
+  <li><code>height</code> 는 생략이 기본(부모 100% 반응형) — MDI 탭 안에서는 항상 생략.</li>
+  <li>특수컬럼 3종은 기본 켜짐 — 끄려면 <code>rowStatus={false}</code> <code>rowNum={false}</code> <code>delCheck={false}</code>.</li>
+  <li><code>data</code> 참조가 바뀌면(재조회) 선택·찾기 캐시가 초기화된다 — MOCA drawGrid 와 동일.</li>
+  <li>행 높이는 전 행 동일(<code>rowHeight</code> 기본 26px). 가변 행높이는 미지원.</li>
+  <li><b>컬럼 폭</b> — <code>width</code> 를 준 컬럼은 그 폭 고정, 안 준 컬럼이 남는 폭을 나눠 갖는다.
+    그리드가 <b>넓어지면</b>(팝업이 열리며 커질 때 · 레이아웃 <code>setRatio</code> · MDI 분할 ·
+    창 크기) 폭 미지정 컬럼이 늘어난 폭을 다시 흡수해 오른쪽에 빈 띠가 남지 않는다.
+    좁아질 때는 줄이지 않고 <b>가로 스크롤</b>이 생기며(컬럼이 최소폭으로 붕괴하지 않게),
+    사용자가 헤더 경계를 드래그해 정한 폭은 이후 재배분에서 제외된다.</li>
+</ul>
+<h3>트리 컬럼 (cellType: 'tree')</h3>
+<p>MOCA <code>data-m-celltype="tree"</code> 의 React 판. 별도 트리 데이터 구조가 필요 없다 —
+SQL 에서 <b>ORDER BY PATH 한 줄</b>로 정렬해 내려준 평면 목록에 깊이 컬럼(1부터)만 있으면
+그 컬럼이 트리로 그려진다. 부모/리프는 "다음 행의 깊이"로 판정한다(다음 행이 더 깊으면 부모).</p>
+<pre><code>const columns = [
+  // MOCA 속성 대응: cellType=data-m-celltype · levelKey=data-m-levelid
+  //                labelKey=data-m-labelid · treeKey=data-m-treeid · title=data-m-name
+  { key: 'TREE', title: '메뉴', cellType: 'tree',
+    levelKey: 'DEPTH', labelKey: 'MENU_NM', treeKey: 'MENU_ID', width: 240 },
+  { key: 'MENU_ID', title: '메뉴ID', width: 80 },
+]
+// data 는 PATH 정렬 평면 배열:
+// { MENU_NM:'시스템관리', DEPTH:1, PATH:'0001' }
+// { MENU_NM:'메뉴관리',   DEPTH:2, PATH:'0001-0005' }
+// { MENU_NM:'메뉴등록',   DEPTH:3, PATH:'0001-0005-0012' }</code></pre>
+<ul>
+  <li>접기: 부모의 <code>−</code> 클릭 → 모든 자손이 숨지만 자손의 접힘 상태는 보존된다 —
+    다시 펼치면 이전 모습 그대로 복원(MOCA 는 하위 부모를 강제로 접는다 — 의도된 개선).
+    <code>data</code> 가 바뀌면 전체 펼침으로 초기화.</li>
+  <li>찾기·가상 스크롤은 "보이는 행 목록" 위에서 동작 — 접혀 숨은 행은 찾기 대상에서 빠지고,
+    행번호·선택·삭제체크는 <code>data</code> 기준 절대 번호를 유지한다.</li>
+  <li>데모: 샘플 &gt; 트리그리드 (<code>src/screens/TreeGrid.jsx</code>).</li>
+</ul>
+
+<h3>소계/합계 (subtotal · total · calc) 와 컬럼 병합 (merge)</h3>
+<p>MOCA <code>data-m-calc/subtotal/total/colmerge</code> 의 React 판 (TPL018 판매실적 대응).
+그룹 컬럼으로 정렬된 평면 데이터(SQL <code>ORDER BY 지역, 분류</code>)면 소계/합계가 그대로 나온다.</p>
+<pre><code>const comma = (v) =&gt; Number(v).toLocaleString()
+const columns = [
+  { key: 'REGION_NM', title: '지역', merge: true, align: 'center' },  // 세로 병합
+  { key: 'PROD_NM',   title: '상품명' },
+  { key: 'SALE_QTY',  title: '수량',     calc: 'sum', align: 'right', format: comma },
+  { key: 'SALE_AMT',  title: '판매금액', calc: 'sum', align: 'right', format: comma },
+]
+&lt;MocaReactGrid columns={columns} data={rows}
+  subtotal="REGION_NM"     // 지역이 바뀔 때마다 "서울 소계" 행 삽입
+  total="bottom"           // 합계행 맨 아래 고정 (top = 위 고정, false = 없음)
+/&gt;</code></pre>
+<ul>
+  <li>집계행은 데이터가 아니라 <b>파생물</b> — <code>data</code> 가 바뀔 때마다 전부 재계산된다.
+    연산은 sum/count/avg/min/max (avg 는 전체 합÷전체 건수 — 평균의 평균 함정 회피, 빈 값은 안 센다).</li>
+  <li>소계는 그룹값의 <b>인접 런</b> 단위 — 그룹이 흩어져 있으면(다른 컬럼 정렬 상태)
+    틀린 소계를 보여주느니 생략한다(MOCA 동일).</li>
+  <li>합계행은 가상 스크롤 목록 밖의 고정(pin) 행 — 스크롤과 무관하게 항상 보인다.</li>
+  <li><code>merge: true</code> 컬럼은 연속 같은 값이 병합 표시 — 값은 병합 구간의 첫 표시 행에
+    그려져 스크롤 중에도 항상 보인다. 집계행이 병합 런을 끊는다. 트리와 집계는 동시 사용 불가.</li>
+  <li>데모: 샘플 &gt; 소계·합계 그리드 (<code>src/screens/SaleAgg.jsx</code> — 합계 아래/위 두 그리드 비교).</li>
+</ul>
+<h3>정렬 · 필터 (MOCA doSort/doFilter 대응)</h3>
+<pre><code>&lt;MocaReactGrid columns={columns} data={rows} sortable filterable /&gt;
+
+// 컬럼별로 끄고 켜기 — 컬럼 값이 그리드 값보다 우선
+const columns = [
+  { key: 'EMP_NO', title: '사번', filterable: false },   // 값이 다 달라 필터가 무의미
+  { key: 'DEPT_NM', title: '부서' },                     // 그리드 설정 그대로 둘 다 켜짐
+  { key: 'MEMO', title: '비고', sortable: false },
+]</code></pre>
+<ul>
+  <li><b><code>data</code> 는 건드리지 않는다.</b> 그리드는 그 위에 "보기"를 얹을 뿐이라
+    화면이 들고 있는 배열의 순서·내용이 바뀌지 않는다. 정렬·필터가 걸린 상태에서도
+    <code>onRowSelected(row, idx)</code> 의 <code>idx</code> 는 <b>원본 <code>data</code> 기준</b>이라
+    <code>data[idx]</code> 가 그대로 맞는다.</li>
+  <li><b>정렬은 숫자를 숫자로 두어야 맞는다.</b> 양쪽 다 숫자로 읽히면 숫자 비교, 아니면 문자열 비교다 —
+    <code>"3,000,000"</code> 처럼 콤마를 찍어 넣으면 자릿수가 달라지는 순간 틀린다
+    (<code>"900,000" &gt; "1,000,000"</code>). 값은 숫자로 두고 <code>format</code> 으로 표시만 가공한다.</li>
+  <li>필터 후보값은 <b>전체 <code>data</code></b> 에서 만든다 — 다른 컬럼 필터를 걸어도 후보 목록이 줄지 않는다(MOCA 동일).
+    고유값이 <code>filterDistinctLimit</code>(기본 1000)을 넘으면 목록 대신 안내를 띄운다.</li>
+  <li>집계(소계/합계)는 <b>필터 결과 기준</b>으로 다시 계산된다. 소계는 그룹이 인접해 있어야 하므로
+    다른 컬럼으로 정렬하면 자동으로 생략된다.</li>
+  <li><b>트리 컬럼이 있으면 정렬·필터는 무시된다</b> — 트리는 PATH 정렬을 전제로 부모/자식을 읽기 때문.</li>
+  <li>선택행·삭제체크는 원본 인덱스로 들고 있어 정렬·필터를 바꿔도 따라온다.
+    <code>data</code> 참조가 바뀌면(재조회) 정렬·필터·선택·체크가 모두 초기화된다(MOCA <code>filterRemoveAll</code> 동일).</li>
+  <li>데모: 샘플 &gt; 가상 그리드 (<code>src/screens/GridTest.jsx</code> — 10만 행에 정렬·필터를 켜 두었다).</li>
+</ul>
+
+<h3>셀 편집 (MOCA 셀 입력 + 행상태 대응)</h3>
+<pre><code>const grid = useRef(null)
+const columns = [
+  { key: 'EMP_NO', title: '사번', editable: false },                        // 이 칸만 잠금
+  { key: 'DEPT_CD', title: '부서', editType: 'select', options: depts },     // [{ cd, nm }]
+  { key: 'PAY', title: '급여', editType: 'number', format: comma,
+    editable: (row) =&gt; row.LEAVE !== 'Y' },                                // 행마다 정하기
+  { key: 'USE_YN', title: '사용', editType: 'checkbox' },                    // 'Y' / 'N'
+]
+&lt;MocaReactGrid ref={grid} columns={columns} data={rows} editable
+  onCellEdit={(row, idx, key, v, old) =&gt; { if (key === 'PAY') row.TOTAL = row.PAY + row.BONUS }} /&gt;
+
+// 저장 — 고친 행만 모아 보낸다
+await tran.save({ updateQueryId: 'updateEmp', list: grid.current.getChangedRows() })</code></pre>
+<ul>
+  <li><b>반영은 행 객체를 그 자리에서 고친다</b>(MOCA 와 같다). <code>data</code> 참조가 그대로라 선택·정렬·필터·스크롤이 유지된다.
+    화면이 <code>setRows</code> 로 새 배열을 넣으면 재조회로 보고 전부 초기화되니, 편집 결과를 반영하려고 새 배열을 만들지 않는다.</li>
+  <li>고친 행은 <code>_status = 'U'</code>(신규 <code>'C'</code>·삭제 <code>'D'</code> 는 그대로). 고친 값이 전부 원래대로 돌아가면 <code>'U'</code> 를 뗀다.</li>
+  <li>다른 칸을 따라 맞춰야 하면(합계 등) <code>onCellEdit</code> 안에서 <code>row</code> 를 고친다 — 그리드가 곧바로 다시 그리고 소계·합계도 새로 센다.</li>
+  <li>숫자 칸은 입력의 콤마를 떼고 숫자로 저장한다. 숫자로 못 읽으면 원래 값을 둔다.</li>
+</ul>
+
+<h3>셀을 React 로 그리기 (render)</h3>
+<pre><code>{ key: 'STATE', title: '상태', render: (v) =&gt; &lt;span className={'badge-' + v}&gt;{v}&lt;/span&gt; }
+{ key: 'RATE', title: '진행률', render: (v) =&gt; &lt;Progress value={v} /&gt; }</code></pre>
+<ul>
+  <li><code>format</code> 은 글자만, <code>render</code> 는 무엇이든(배지·버튼·막대). 편집 중에는 입력칸이 먼저다.</li>
+  <li>가상 스크롤이라 보이는 칸만 그린다 — 칸 안에 무거운 컴포넌트를 넣어도 10만 행에서 느려지지 않지만,
+    칸마다 서버를 부르는 식은 피한다(스크롤마다 다시 그려진다).</li>
+  <li>엑셀에는 원래 값(또는 <code>format</code>)이 나간다. 엑셀에만 다른 값을 내려면 <code>excelValue: (row) =&gt; 값</code>.</li>
+</ul>
+
+<h3>다단 헤더 · 가로 병합</h3>
+<pre><code>const columns = [
+  { title: '인적사항', children: [
+    { key: 'EMP_NO', title: '사번' }, { key: 'EMP_NM', title: '이름' } ] },
+  { title: '급여', children: [
+    { key: 'BASE', title: '기본급', colSpan: (row) =&gt; (row.LEAVE === 'Y' ? 3 : 1) },
+    { key: 'BONUS', title: '수당' }, { key: 'TOTAL', title: '합계' } ] },
+  { key: 'MEMO', title: '비고' },     // 묶음이 없는 칸은 머리글 높이 전체에 걸친다
+]</code></pre>
+<ul>
+  <li>묶음은 머리글에만 쓰인다 — 정렬·필터·폭 조절·편집은 맨 아래 칸(실제 컬럼) 단위다. 묶음 안에 묶음도 된다(3단 이상).</li>
+  <li><code>colSpan</code> 은 그 행에서 오른쪽 n-1 칸을 덮는다(덮인 칸은 그리지 않는다). 엑셀에도 병합으로 나간다.</li>
+</ul>
+
+<h3>엑셀 내보내기</h3>
+<pre><code>&lt;MocaReactGrid excel="사원목록" … /&gt;          // 툴바에 엑셀 버튼
+grid.current.exportExcel('사원목록_202610')     // 화면 버튼에서 부를 때</code></pre>
+<ul>
+  <li>지금 보이는 대로 나간다 — 필터·정렬 결과, 다단 헤더(병합), <code>merge</code> 세로 병합, <code>colSpan</code>, 소계·합계, 머리글 줄 고정.</li>
+  <li>숫자 칸(<code>calc</code> · <code>editType: 'number'</code> · 숫자 값)은 엑셀 숫자(<code>#,##0</code>)로 나간다. 코드처럼 앞자리 0 이 중요한 칸은 글자로 둔다.</li>
+  <li>버튼만 있는 칸처럼 뺄 칸은 <code>excel: false</code>. 외부 라이브러리 없이 만든다(패키지 의존성 0 유지).</li>
+  <li>데모: 샘플 &gt; 편집·엑셀 그리드 (<code>src/screens/GridEditTest.jsx</code> — 네 기능을 한 화면에서 눌러 본다).</li>
+</ul>
+
+<p>props 전체 목록·설명은 <a href="moca-react-api.html#c-MocaReactGrid">API 문서의 MocaReactGrid</a> 절.</p>
+
+<h2 id="d6">D6. MocaReactMdi 사용</h2>
+<pre><code>import { MocaReactMdi } from '@teammoca/react-mdi'
+
+const [tabs, setTabs] = useState([])   // 탭 목록은 부모가 소유
+const mdiRef = useRef(null)
+
+&lt;MocaReactMdi
+  ref={mdiRef}
+  tabs={tabs}
+  onTabClose={(key) =&gt; setTabs((ts) =&gt; ts.filter((t) =&gt; t.key !== key))}
+  emptyHint="좌측 메뉴에서 화면을 선택하면 탭으로 열립니다"
+/&gt;
+
+mdiRef.current?.activate('userlist')   // 이미 열린 탭 활성화 (새 탭은 자동 활성화)</code></pre>
+<ul>
+  <li><b>tabs 는 부모 소유</b> — MDI 는 분할·드래그 이동·활성화만 담당. 닫기도 <code>onTabClose(key)</code> 로 요청만 오고 실제 제거는 부모가 한다.</li>
+  <li><code>content</code> 는 탭이 닫힐 때까지 마운트 유지(숨김 = display:none) — 화면 상태가 보존된다.</li>
+  <li>탭 활성화 시 window <code>resize</code> 이벤트가 발화된다 — 숨김 중 크기가 바뀐 화면(차트 등)은 resize 를 들으면 자동 대응.</li>
+  <li><code>pinned: true</code> 탭은 닫기 버튼이 없고 전체닫기에서도 제외.</li>
+  <li><b>모바일(≤768px)은 패키지가 알아서 처리한다</b> — 탭바를 숨기고 분할을 세로 스택으로 바꾼다(<a href="#u6">U6</a>).
+    쓰는 쪽에서 줄 props 는 없다. 화면 전환은 <code>activate(key)</code> 가 그대로 맡으므로,
+    셸이 메뉴에서 <code>activate</code> 만 불러 주면 탭바 없이도 오갈 수 있다.</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactMdi">API 문서의 MocaReactMdi</a> 절.</p>
+
+<h2 id="d7">D7. MocaReactLayout — 화면 골격 (분할·반응형)</h2>
+<p>MOCA layout 컴포넌트의 React 판 — <b>모든 화면은 MocaReactLayout 으로 시작</b>하고,
+<code>layout</code> 속성 하나로 분할이 끝난다. 방향(v=세로 스택 / h=가로 분할) 뒤에
+토큰을 자식 개수만큼 <code>:</code> 로 나열한다(개수 제한 없음, 생략 시 균등, 통짜는 <code>v1</code>).</p>
+<pre><code>import { MocaReactLayout } from '@teammoca/react-layout'
+
+// 가장 흔한 골격 — 검색영역(fit) + 본문(auto). 본문은 h3:7 중첩(목록:상세)
+&lt;MocaReactLayout layout="vfit:auto"&gt;
+  &lt;div&gt;검색영역&lt;/div&gt;
+  &lt;MocaReactLayout layout="h3:7" ref={bodyRef}&gt;
+    &lt;MocaReactGrid ... /&gt;
+    &lt;MocaReactGrid ... /&gt;
+  &lt;/MocaReactLayout&gt;
+&lt;/MocaReactLayout&gt;
+
+bodyRef.current?.setRatio('h0:10')   // 런타임 변경 — 좌측 접기(0 = 칸 접힘)</code></pre>
+<table>
+<tr><th>토큰</th><th>의미</th><th>전형적 용도</th></tr>
+<tr><td>숫자</td><td>상대 비율(flex-grow) — 합이 10일 필요 없다(2:8 = 1:4). 0 = 칸 접힘</td><td><code>h3:7</code> 목록:상세</td></tr>
+<tr><td>숫자px</td><td>고정 크기(주축 — h는 폭, v는 높이)</td><td><code>h240px:auto</code> 사이드바 고정</td></tr>
+<tr><td>fit</td><td>내용 크기만큼(hug)</td><td><code>vfit:auto</code> 검색영역+본문 · <code>vfit:auto:fit</code> 팝업 골격</td></tr>
+<tr><td>auto</td><td>남은 공간 전부(내부적으로 grow 1)</td><td>px/fit 고정 칸과 짝</td></tr>
+</table>
+<ul>
+  <li><b>반응형</b> — 데스크톱은 부모를 스크롤 없이 꽉 채우고, 모바일(≤768px)은 방향 무관
+    세로 스택 + 페이지 스크롤로 전환된다. 고정 px 칸은 내용 높이로 풀리고(그리드가 든 칸은
+    높이 유지), 그리드 칸은 남은 높이를 채운다. 칸별 모바일 높이는 <code>mobileHeights</code> 배열.</li>
+  <li><b><code>mrl-fill</code> 표식</b> — 모바일은 칸을 <b>내용 높이</b>로 푸는데, 내용이 전부 absolute 이거나
+    캔버스처럼 <b>스스로 높이가 없는 박스</b>는 0 으로 주저앉아 화면 아래가 빈 채로 남는다.
+    그 박스에 이 클래스를 붙이면 그 칸이 남은 높이를 채운다. 그리드가 든 칸은 자동이라 필요 없다.
+<pre><code>&lt;div className="fab-playground mrl-fill"&gt;…&lt;/div&gt;</code></pre></li>
+  <li><b>골격 미리보기</b> — <span class="kbd">Alt+L</span> 또는 루트 레이아웃 우하단의 격자 FAB
+    버튼으로 와이어프레임 토글(MOCA 동일): 칸 구조·스펙·토큰 라벨이 표시되고 실제 컴포넌트는
+    숨는다. 버튼은 <code>wireframeButton={false}</code> 로 숨길 수 있다(운영 화면).</li>
+  <li>flex 값은 인라인이 아니라 CSS 변수로 전달된다 — 인라인이면 모바일 미디어쿼리가 못 누른다
+    (MOCA 와 같은 이유. 이 구조를 인라인 flex 로 바꾸지 말 것).</li>
+  <li>데모: 샘플 &gt; 레이아웃 (<code>src/screens/LayoutTest.jsx</code> — setRatio 버튼·Alt+L).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactLayout">API 문서의 MocaReactLayout</a> 절.</p>
+
+<h2 id="d8">D8. MocaReactFloatingButton — 떠 있는 액션 버튼(FAB)</h2>
+<p>MOCA floatingButton 의 React 판 — 화면 위에 떠 있는 원형/알약형 액션 버튼.
+레이아웃의 골격 미리보기 버튼(D6)도 이 컴포넌트로 만들어져 있다.</p>
+<pre><code>import { MocaReactFloatingButton } from '@teammoca/react-floating-button'
+
+&lt;MocaReactFloatingButton onClick={fnNew} title="신규" /&gt;               // plus 원형(우하단 fixed)
+&lt;MocaReactFloatingButton label="저장" icon="💾" onClick={fnSave} /&gt;    // 알약형
+&lt;MocaReactFloatingButton absolute position="rt" icon="✏️"
+  bgColor="#b4493e" onClick={fnEdit} /&gt;                                // 부모 기준 + 색 지정</code></pre>
+<ul>
+  <li><b>아이콘 4형태</b> — <code>'plus'</code>(내장 SVG·색 추종) · 이미지 경로(<code>iconMode="mask"</code> 면
+    currentColor 채움) · 글리프 텍스트(이모지) · ReactNode(React 판 확장).</li>
+  <li><b>드래그 이동</b>(기본 켜짐) — 꾹 누르면(350ms) 드래그 모드로 자유롭게 이동(마우스·터치 공통).
+    짧은 클릭은 그대로 onClick, 드래그 직후의 클릭은 무시된다. 이동 위치는 뷰포트(fixed)/부모(absolute)
+    안으로 클램프되고 화면이 살아 있는 동안만 유지. <code>draggable={false}</code> 로 끔.</li>
+  <li><code>absolute</code> — fixed 대신 부모(positioned ancestor) 기준 절대배치. 레이아웃/컨테이너 안 버튼용.
+    <b>그 부모는 스스로 높이를 가져야 한다</b>(<code>min-height</code> 등) — 모바일에서는 레이아웃 칸이
+    내용 높이로 줄어드는데(<a href="#u6">U6</a>) 상자 안이 전부 absolute 면 높이에 기여하는 내용이 없어 0 이 되고,
+    그러면 드래그의 상하 이동 여지도 0 이 되어 <b>좌우로만 움직인다</b>. 부모가 버튼보다 작으면
+    그 축은 화면 기준으로 클램프해 최소한 움직이게는 되어 있지만, 애초에 높이를 주는 것이 맞다.</li>
+  <li>표시/숨김은 React 답게 조건부 렌더로(MOCA show/hide 메서드 대응).</li>
+  <li>데모: 샘플 &gt; 플로팅 버튼 (<code>src/screens/FabTest.jsx</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactFloatingButton">API 문서의 MocaReactFloatingButton</a> 절.</p>
+
+<h2 id="d9">D9. 달력 4종 — 날짜 · 기간 · 붙박이 · 일정</h2>
+<p>MOCA <code>inputCalendar</code>(데모 TPL042)의 React 판 — 입력칸 + 달력 팝업.
+<b>dateType 하나가 "무엇을 고르는 달력인가"를 정하면</b> 값 자릿수 · 팝업 모드 ·
+기본 표시형식이 전부 거기서 파생된다.</p>
+<pre><code>import { MocaReactInputCalendar, mdate } from '@teammoca/react-input-calendar'
+
+&lt;MocaReactInputCalendar displayFormat="####-##-##" defaultValue="오늘"
+  onDateSelected={(v) =&gt; fnSearch(v)} /&gt;      {/* v = '20260815' — 숫자문자열 */}
+
+&lt;MocaReactInputCalendar dateType="yyyyMM" defaultValue="오늘" /&gt;   {/* 값 6자리, 월 목록 */}
+&lt;MocaReactInputCalendar dateType="yyyy" defaultValue="3년전" /&gt;    {/* 값 4자리, 연 목록 */}
+&lt;MocaReactInputCalendar dateType="yyyyMMdd hh:mm:ss" defaultValue="오늘" /&gt;</code></pre>
+<table>
+<tr><th>dateType</th><th>고르는 것</th><th>값</th><th>팝업</th></tr>
+<tr><td><code>yyyy</code></td><td>연</td><td>4자리</td><td>연 목록(연대 10년)</td></tr>
+<tr><td><code>yyyyMM</code></td><td>연월</td><td>6자리</td><td>월 목록(12개월)</td></tr>
+<tr><td><code>yyyyMMdd</code> (기본)</td><td>일자</td><td>8자리</td><td>일자 격자</td></tr>
+<tr><td><code>yyyyMMddHHmm</code></td><td>일시(분)</td><td>12자리</td><td>일자 격자 + 시·분 → [확인]</td></tr>
+<tr><td><code>yyyyMMdd hh:mm:ss</code></td><td>일시(초)</td><td>14자리</td><td>일자 격자 + 시·분·초 → [확인]</td></tr>
+</table>
+<ul>
+  <li><b>값과 표시는 다르다</b> — 값은 언제나 숫자만 있는 문자열(서버·SQL 과 그대로 주고받는다),
+    표시는 <code>displayFormat</code> 의 <code>#</code> 마스크가 만든다.
+    <code>setValue</code> 는 타입 자릿수로 맞춘다(넘치면 자르고, 모자라면 월·일 01 / 시각 00).</li>
+  <li><b>기본값은 상대일로</b> — <code>defaultValue="오늘"</code> · <code>"7일전"</code> ·
+    <code>"3개월전"</code> · <code>"당월"</code> 등(MOCA 와 같은 문법).</li>
+  <li><b>범위 제한</b> — <code>dateMin</code>/<code>dateMax</code> 밖은 칸·이동버튼·[오늘]이 잠기고
+    직접 타이핑도 확정 시 거부된다. 연/연월 타입은 "그 값이 덮는 기간이 범위와 겹치는가"로 판정한다
+    (min 이 03-15 면 연월 2026-03 은 선택 가능).</li>
+  <li><b>ref API</b> — <code>getValue()</code> / <code>setValue(v)</code>(이벤트 미발화) /
+    <code>setReadOnly(b)</code> / <code>clear()</code> / <code>focus()</code>.
+    날짜 계산은 <code>mdate</code>(MOCA <code>moca.$g.date</code> 대응):
+    <code>mdate.addDay(v, -7)</code> · <code>getLastDayOfMonth</code> 등.</li>
+  <li>팝업은 body 로 portal + fixed — 폼·패널처럼 <code>overflow:auto</code> 인 스크롤 영역
+    안에서도 잘리지 않고, 아래 공간이 없으면 위로 뜬다.</li>
+  <li>데모: 샘플 &gt; 날짜 선택(달력) (<code>src/screens/CalendarTest.jsx</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactInputCalendar">API 문서의 MocaReactInputCalendar</a> 절.</p>
+
+<h3>기간 선택 — MocaReactMultiCalendar (MOCA inputMultiCalendar · TPL043)</h3>
+<p><b>한 컴포넌트가 두 칸을 관리한다</b> — 입력칸 두 개(시작·종료)와 팝업의 달력 두 판(좌 = 시작,
+우 = 종료). dateType 계약은 단일 달력과 같고(같은 코어를 공유한다), 기간이라서 더해지는 것은 셋이다:
+<b>빠른선택 · 최대 기간 · from&gt;to 보정</b>.</p>
+<pre><code>import { MocaReactMultiCalendar, mdate } from '@teammoca/react-input-calendar'
+
+&lt;MocaReactMultiCalendar displayFormat="####-##-##" defaultValue="당월"
+  onTermSelected={({ from, to }) =&gt; fnSearch(from, to)} /&gt;
+
+&lt;MocaReactMultiCalendar defaultValue="금주" maxTermByDay={31}
+  quickItems="오늘,금주,당월,전월,당분기,당년" /&gt;      {/* 팝업 왼쪽 버튼 목록 */}
+
+&lt;MocaReactMultiCalendar dateType="yyyyMM" defaultValue="당년" /&gt;   {/* 연월 기간 */}
+
+term.current.setMultiCalendar({ from: '20260801', to: '20260831' })
+term.current.getTerm()   // { from: '20260801', to: '20260831' }</code></pre>
+<ul>
+  <li><b>확정은 [확인] 에서만</b> — 팝업 아래 <b>취소 · 확인</b> 줄이 항상 있고, 지금 고른 기간이 함께 표시된다.
+    날짜를 클릭하거나 빠른선택을 눌러도 <b>팝업이 닫히지 않는다</b>(견줘 보고 고칠 수 있어야 한다).
+    <code>onTermSelected</code> 는 <b>[확인]</b> 에서만 발화하고, <b>[취소]</b> 는 팝업을 열 때의 기간으로 되돌린다.
+    기간은 두 번 골라야 완성되므로, 고를 때마다 확정 이벤트를 쏘면 반쪽 기간으로 조회가 돈다.</li>
+  <li><b>격자는 항상 6줄</b> — 달에 따라 5줄/6줄로 바뀌면 월을 넘길 때 달력 높이가 흔들려 안정감이 없다.
+    행 높이도 고정이라 공휴일이 있는 달에서도 크기가 그대로다.</li>
+  <li><b>값이 바뀌면 그 판이 그 달로 이동</b> — 빠른선택(전월·전분기…)을 누르면 두 판이 그 기간의 달을
+    보여준다. <code>from&gt;to</code> 로 반대쪽이 따라 바뀐 경우 그 판도 함께 움직인다.
+    반대로 <b>달만 넘겨 보는 것은 다른 판에 영향이 없다</b>.</li>
+  <li><b>from &gt; to 는 방금 고친 쪽이 이긴다</b> — 시작을 종료보다 뒤로 고르면 종료가 따라오고, 그 반대도 같다(MOCA 동일 규칙).</li>
+  <li><b>[오늘] 버튼 두 가지</b> — 헷갈리기 쉬우니 구분해 둔다.
+    <b>빠른선택의 [오늘]</b>은 <b>시작·종료를 둘 다</b> 오늘로 놓고,
+    <b>각 판 머리의 [오늘]</b>은 <b>그 판 한쪽만</b>(시작 또는 종료) 오늘로 바꾼다.
+    둘 다 <b>값을 고르는</b> 동작이다 — 보기만 옮기지 않는다(MOCA 동일).</li>
+  <li><b>기간 프리셋</b>(defaultValue·quickItems 공통) — <code>오늘</code> · <code>전일</code> ·
+    <code>금주</code>(일~토) · <code>전주</code> · <code>당월</code>(1일~말일) · <code>전월</code> ·
+    <code>당분기</code> · <code>전분기</code> · <code>당년</code> · <code>전년</code> ·
+    <code>N일전/개월전/년전</code>(그만큼 전 ~ 오늘). MOCA 와 같은 문구다.</li>
+  <li><b>종료값은 23:59:59 로 채운다</b> — 일시 타입에서 종료가 00:00:00 이면 그 날 하루가 통째로
+    빠지기 때문(MOCA 와 같은 이유). 일자 타입은 8자리라 영향 없다.</li>
+  <li><b>최대 기간</b> — <code>maxTermByDay/Month/Year</code>. 넘기면 선택이 거부된다(양 끝 포함:
+    31이면 8/1~8/31 허용, 9/1 은 거부).</li>
+  <li><b>from &gt; to 보정</b> — 방금 고친 쪽을 살리고 반대쪽이 따라온다(종료를 앞당기면 시작이 따라옴).</li>
+  <li>팝업에서 기간 사이 칸은 연하게 채워져 선택 구간이 눈에 보인다. 양 끝은 진하게 표시.</li>
+  <li>ref API: <code>getTerm()</code> · <code>getValue()</code>(=from, MOCA 규약) ·
+    <code>setFrom/setTo/setMultiCalendar</code>(이벤트 미발화) · <code>setReadOnly</code> · <code>clear</code>.</li>
+  <li>데모: 샘플 &gt; 기간 선택(달력) (<code>src/screens/TermTest.jsx</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactMultiCalendar">API 문서의 MocaReactMultiCalendar</a> 절.</p>
+
+<h3>붙박이 달력 — MocaReactCalendar (MOCA calendar · TPL044)</h3>
+<p>팝업이 아니라 <b>화면에 늘 펼쳐진 달력</b>이다 — 고른 날짜를 달력 위에서 눈으로 확인하는 것이
+목적(예약일·근태·마감일 화면). 제목을 누르면 한 단계 위로 올라가고(일→월→연), 위 뷰에서 칸을
+고르면 내려온다 — 먼 날짜로 빠르게 이동하는 통로다.</p>
+<pre><code>import { MocaReactCalendar, mdate } from '@teammoca/react-input-calendar'
+
+// 공휴일·휴무는 컴포넌트가 모른다 — 화면이 조회해 dayInfo 로 넘긴다
+const [dayInfo, setDayInfo] = useState({})
+
+&lt;MocaReactCalendar ref={cal} dateType="yyyyMMdd"
+  dayInfo={dayInfo}      // { '20260815': { holi: '광복절', off: true, badge: '휴' } }
+  weekendOff legend
+  onSelect={(v) =&gt; console.log(v, cal.current.getDayInfo(v))}
+  onViewChange={(ym, view) =&gt; { if (view === 'day') loadHoli(ym) }} /&gt;
+
+// 예약 가능일처럼 구간이 런타임에 정해지는 화면
+cal.current.setDateRange(mdate.getToday(), mdate.addDay(mdate.getToday(), 30))</code></pre>
+<ul>
+  <li><b>공휴일·비영업일은 화면 책임</b> — <code>dayInfo</code>({ holi, off, badge, class })만 넘기면
+    컴포넌트가 그린다. <b>달을 옮기면 <code>onViewChange</code> 가 발화</b>하므로 그 자리에서 그 달을
+    다시 조회한다. 첫 조회는 발화하지 않으니 화면이 <code>getViewYm()</code> 으로 직접 한다(MOCA 규약).</li>
+  <li><code>weekendOff</code> 로 주말을 자동 비영업일 처리하되, <code>dayInfo</code> 의
+    <code>off:false</code> 가 그보다 우선한다("쉬는 토요일만 예외" 지정 가능).</li>
+  <li><code>legend</code> 는 <b>지금 달력에 실제로 있는 표시만</b> 설명한다(없는 규칙을 찾게 만들지
+    않으려는 MOCA 규약). 견본이 실제 칸과 같은 모양이라 빗금이 무슨 뜻인지 화면 안에서 알 수 있다.</li>
+  <li><code>readOnly</code> 는 <b>선택만</b> 잠근다 — 달 이동·둘러보기는 그대로.</li>
+  <li>고정 구간이면 <code>dateMin/dateMax</code>, 구간이 다른 값에서 정해지면
+    <code>setDateRange(min, max)</code>(예약 시작이 "오늘", 입고일 하한이 "발주일"인 경우).</li>
+  <li><b>[오늘] 버튼</b> — 달력 3종이 모두 같다: <b>오늘을 고른다</b>(그 달로 이동 + 선택).
+    읽기전용이거나 연·월 목록 뷰에서는 이동만 한다.
+    <b>MOCA 는 붙박이만 이동 전용</b>인데, 세 달력의 동작을 통일하는 쪽을 택했다 —
+    선택을 건드리지 않고 둘러보게 하려면 <code>readOnly</code>, 화면 코드에서 옮기기만 하려면
+    ref <code>today()</code>(이동 전용)를 쓴다.</li>
+  <li>데모: 샘플 &gt; 붙박이 달력 (<code>src/screens/CalendarInlineTest.jsx</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactCalendar">API 문서의 MocaReactCalendar</a> 절.</p>
+
+<h3>일정 달력 — MocaReactScheduleCalendar (MOCA scheduleCalendar · TPL041)</h3>
+<p>앞의 셋이 <b>날짜를 고르는</b> 컴포넌트라면 이쪽은 <b>일정을 보여주는</b> 컴포넌트다
+(별도 패키지 <code>@teammoca/react-schedule-calendar</code>). <b>화면이 하는 일은 셋뿐</b>이다 —
+① 월이 바뀌면 그 달 조회 ② 아이템으로 매핑해 넘기기 ③ 일자 클릭 시 <code>getDayItems</code>.
+연속일정 전개·정렬·바 그리기·공휴일/날씨 표기·좌우 스와이프는 컴포넌트가 한다.</p>
+<pre><code>import { MocaReactScheduleCalendar } from '@teammoca/react-schedule-calendar'
+
+&lt;MocaReactScheduleCalendar ref={scc}
+  schedules={schedules}   // [{ start, end, title, ico, done, crucial, bg, fg, mark, time, seq, data }]
+  dayInfo={dayInfo}       // { '20260815': { holi: '광복절', wthr: '☀️', badges: ['휴'] } }
+  hideOutside todayFlag menuButton
+  onMonthChange={(ym) =&gt; loadMonth(ym)}       // 첫 조회는 화면이 getYm() 으로 직접
+  onDayClick={(day) =&gt; setPicked(scc.current.getDayItems(day.ymd))}
+  dayRenderer={(day) =&gt; day.dow === 0 ? &lt;span&gt;휴일&lt;/span&gt; : null} /&gt;</code></pre>
+<ul>
+  <li><b>연속일정은 자동 전개</b> — <code>start~end</code> 를 각 일자로 펼치고 그 날이 단일/시작/중간/종료
+    중 무엇인지(<code>pos</code>)에 따라 바 모양이 달라진다(시작·단일: 마커+제목 / 종료: 우측정렬 /
+    중간: 색만). 완료는 배경 없이 취소선.</li>
+  <li><b>정렬이 화면의 "줄"을 만든다</b> — ① 완료는 뒤 ② 연속 우선(인접 칸에서 같은 슬롯을 유지해
+    한 줄로 이어져 보인다) ③ 시작일 ④ 시작시간 ⑤ seq. MOCA 규칙 그대로다.</li>
+  <li><b>일자 클릭은 서버를 다시 부르지 않는다</b> — <code>getDayItems(ymd)</code> 가 화면 순서 그대로
+    돌려주고, 아이템에 담아 보낸 <code>data</code>(원본 행)도 함께 온다. 공휴일·날씨는
+    <code>getDayInfo(ymd)</code>.</li>
+  <li>보기 옵션(완료 숨기기·이모지·앞뒤월)은 <b>재조회 없이</b> 매핑만 바꿔 다시 넘기면 된다.</li>
+  <li><b>일자를 누르면 그 날 일정 팝업</b>이 뜬다(MOCA TPL041 과 같다). 목록에서 고르고 [삭제]하면
+    팝업이 <code>{ changed, delId }</code> 를 돌려주고 화면이 그때만 다시 그린다 — 그냥 닫으면 아무 일도 없다.</li>
+  <li>데모: 샘플 &gt; 일정 달력 (<code>src/screens/ScheduleTest.jsx</code>, 팝업은 <code>pop/PopDaySchedule.jsx</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactScheduleCalendar">API 문서의 MocaReactScheduleCalendar</a> 절.</p>
+
+<h2 id="d10">D10. 메시지박스 — alert · error · confirm · 진행 모달</h2>
+<p>MOCA <code>moca.$g.alert/error/confirm</code>(데모 TPL023)의 React 판. MOCA 처럼
+<b>화면 어디서나 명령형으로</b> 부르고, React 답게 <b>await 로 답을 받을</b> 수도 있다.
+실제 렌더는 앱 루트에 한 번 놓는 <code>&lt;MocaReactMsgHost /&gt;</code> 가 맡는다.</p>
+<pre><code>import { msgbox, MocaReactMsgHost } from '@teammoca/react-msgbox'
+
+&lt;MocaReactMsgHost /&gt;                      {/* 앱 루트에 한 번 — 이미 App.jsx 에 있다 */}
+
+msgbox.alert('저장되었습니다.')                             // 알림(! 아이콘)
+msgbox.error('삭제할 수 없는 데이터입니다.')                  // 오류(danger + ✕)
+msgbox.confirm('저장하시겠습니까?', () =&gt; save())            // MOCA 호환 콜백
+
+if (await msgbox.confirm('정말 삭제하시겠습니까?')) remove()   // 답을 그 자리에서 받는다
+const mode = await msgbox.confirm('어디에 추가할까요?', { radios: [
+  { value: 'child',   label: '하위 메뉴로 추가', desc: '아래 단계(자식)로 생성됩니다.' },
+  { value: 'sibling', label: '같은 레벨로 추가', desc: '동일 단계(형제)로 생성됩니다.' },
+] })                                                       // 선택값 또는 null(취소)
+
+if (!name) return msgbox.requiredFail('사용자명', () =&gt; ref.current.focus())</code></pre>
+<ul>
+  <li><b>메시지는 문자열 또는 노드</b> — 문자열은 텍스트로 넣고 줄바꿈(<code>\n</code>)만 반영한다.
+    강조가 필요하면 <code>msgbox.alert(&lt;&gt;성공 &lt;b&gt;12건&lt;/b&gt;&lt;/&gt;)</code> 처럼 노드를 넘긴다
+    (MOCA 는 innerHTML 이었지만 서버 문장을 그대로 HTML 로 넣던 통로를 막았다 — 의도된 차이).</li>
+  <li><b>requiredFail 은 항상 false 를 즉시 반환</b>한다 — MOCA 규약 그대로여서
+    <code>if (!v) return msgbox.requiredFail(...)</code> 패턴이 그대로 동작한다. 문구는
+    "<code>{label}은(는) 필수입력항목입니다.</code>".</li>
+  <li><b>진행 모달</b> — <code>showProgress(msg, delay)</code>는 delay(기본 300ms) 안에 작업이
+    끝나면 <b>아예 뜨지 않는다</b>(짧은 작업의 깜빡임 방지). 단계 표시는
+    <code>setProgressMsg</code>, 닫기는 통신과 함께 쓸 때 <b><code>finally</code> 에서</b>
+    <code>hideProgress()</code>.</li>
+  <li>모달은 <b>큐로 한 번에 하나씩</b> 표시된다(MOCA 는 겹쳐 쌓였다 — 의도된 개선). 진행 모달은
+    그 위에 별도로 뜬다. <span class="kbd">Enter</span>=확인 ·
+    <span class="kbd">ESC</span>=취소(confirm)/확인(alert·error), 열리면 확인 버튼에 포커스.</li>
+  <li>데모: 샘플 &gt; 메시지박스 (<code>src/screens/MsgBoxTest.jsx</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-msgbox">API 문서의 msgbox</a> 절.</p>
+
+<h2 id="d11">D11. 팝업 — 화면을 모달로 띄우고 결과 받기</h2>
+<p>MOCA <code>$p.openPop</code> / <code>$p.getParameter</code> / <code>$p.close</code>(데모 TPL037)의
+React 판. 기억할 것은 <b>팝업 3동사</b>뿐이다 — <b>열기</b>·<b>파라미터</b>·<b>닫기</b>.
+MOCA 는 팝업 화면을 <code>url</code> 로 지정했지만 React 는 <b>컴포넌트를 그대로</b> 넘긴다
+(화면이 곧 컴포넌트이므로 경로 문자열을 거칠 이유가 없고, <code>lazy()</code> 도 그대로 쓸 수 있다).
+실제 렌더는 앱 루트에 한 번 놓는 <code>&lt;MocaReactPopupHost /&gt;</code> 가 맡는다.</p>
+<pre><code>import { popup } from '@teammoca/react-popup'
+import PopItemSearch from './pop/PopItemSearch'
+
+// ① await 로 받기 — 권장. 답에 따라 다음 줄이 갈린다
+const row = await popup.open(PopItemSearch, { title: '품목 검색', width: 640, data: { keyword } })
+if (row) setItem(row)                       // 취소면 undefined
+
+// ② 콜백 — MOCA openPop 호환. 취소면 콜백이 아예 불리지 않는다
+popup.open(PopItemSearch, { title: '품목 검색', callback: (row) =&gt; setItem(row) })</code></pre>
+<p>팝업 화면은 <b>업무 화면과 똑같이</b> 만든다(레이아웃·그리드 그대로). 다른 점은 두 가지뿐 —
+파라미터를 <code>props.data</code> 로 받고, 결과를 <code>props.close()</code> 로 돌려준다.</p>
+<pre><code>function PopItemSearch({ data, close }) {
+  const [kw, setKw] = useState(data?.keyword ?? '')      // ← MOCA getParameter()
+
+  return (
+    &lt;MocaReactLayout layout="vfit:auto:fit"&gt;            {/* 검색 · 목록 · 버튼 */}
+      ...
+      &lt;button onClick={() =&gt; close(sel)}&gt;선택&lt;/button&gt;   {/* 확정 — 값을 돌려준다 */}
+      &lt;button onClick={() =&gt; close()}&gt;닫기&lt;/button&gt;      {/* 취소 — 값이 없다 */}
+    &lt;/MocaReactLayout&gt;
+  )
+}</code></pre>
+<ul>
+  <li><b>확정과 취소를 값으로 구분</b>한다 — <code>close(결과)</code>는 확정(콜백 발화 ·
+    Promise 결과), <code>close()</code>·제목바 <code>×</code>·<span class="kbd">ESC</span> 는
+    취소(<b>콜백 미발화</b> · Promise <code>undefined</code>). MOCA 규약 그대로이므로
+    호출측은 취소를 따로 처리하지 않아도 된다.</li>
+  <li><b>겹쳐 열린다</b> — 메시지박스는 큐(하나씩)지만 팝업은 <b>스택</b>이다.
+    품목검색 안에서 거래처검색을 여는 흐름이 업무에서 흔하고 MOCA 도 그렇게 동작한다.
+    각 팝업은 자기 <code>data</code>·결과만 소유하므로 섞이지 않는다.</li>
+  <li><b>크기</b> — <code>width</code> 생략 시 560px, <code>height</code> 생략 시 내용 높이
+    (최대 90vh). 목록 팝업은 대개 <code>width</code> 만 준다.</li>
+  <li><b>그리드를 담은 팝업은 높이를 확보해야 한다</b> — 높이가 "내용 기준"이면 레이아웃의
+    <code>auto</code>(남는 공간) 칸이 0 이 되어 <b>목록이 보이지 않는다</b>. 호출측에서
+    <code>height</code> 를 주거나, 팝업 화면 루트에 <code>minHeight</code> 를 준다
+    (데모 팝업 화면들이 이 방식 — <code>height:'100%'</code> 와 함께 두면 호출측이
+    <code>height</code> 를 줬을 때 그 크기를 채우고, 안 줬을 때도 목록이 나온다).</li>
+  <li><b>모달 없이</b> — <code>modal: false</code> 면 뒤 화면을 계속 쓸 수 있는 보조창이 된다.
+    제목바를 잡아 옮길 수 있다(<code>draggable</code>, 기본 켜짐).</li>
+  <li><b>닫기 버튼은 푸터 한 곳</b>에만 둔다 — 제목바 <code>×</code> 는 팝업 셸이 준다.</li>
+  <li><b>팝업 안에서도 서버 조회</b>가 똑같다(<code>useSelect</code>) — 무거운 조회 팝업은
+    <code>lazy()</code> 로 넘기면 처음 열 때 내려받는다("화면 로딩중…" 표시).
+    데모의 사용자 검색 팝업이 이 방식이다.</li>
+  <li><b>화면 전환·로그아웃</b> 때는 <code>popup.closeAll()</code>(App.jsx 로그아웃에 적용).
+    통신 실패로 접어야 할 때는 <code>popup.close()</code>.</li>
+  <li>겹침 순서(z-index): 팝업 7500↑ &lt; 달력 7800 &lt; 메시지박스 8000 — 팝업 안의 달력·경고가
+    항상 위에 보인다.</li>
+  <li>데모: 샘플 &gt; 팝업 (<code>src/screens/PopupTest.jsx</code>,
+    팝업 화면은 <code>src/screens/pop/</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-popup">API 문서의 popup</a> 절.</p>
+
+<h2 id="d12">D12. MocaReactEchart — 차트 (Apache ECharts 래퍼)</h2>
+<p>MOCA <code>data-m-type="echart"</code>(plugins/echart.js)의 React 판.
+외부 솔루션 연동 규칙은 MOCA 와 동일 — <b>화면은 option 만 넘기고, option 의 문법은
+ECharts 제품 API 그대로</b>다. 래퍼는 내용을 해석하지 않고 인스턴스 관리
+(생성·리사이즈·해제)만 담당한다.</p>
+<pre><code>import { MocaReactEchart } from '@teammoca/react-echart'
+
+const option = {
+  xAxis: { type: 'category', data: ['1월', '2월', '3월'] },
+  yAxis: { type: 'value' },
+  series: [{ type: 'bar', data: [120, 200, 150] }],
+}
+&lt;MocaReactEchart option={option} /&gt;    // 부모(레이아웃 pane)를 100% 채운다
+
+// 제품 API(dispatchAction·on 등)가 필요하면 ref 로 실제 인스턴스를 받는다
+chartRef.current?.getChart((c) =&gt; c.on('click', fn))</code></pre>
+<ul>
+  <li><b>자동 리사이즈</b> — ResizeObserver 가 자기 크기 변화를 관찰해 <code>chart.resize()</code>.
+    레이아웃 <code>setRatio</code>·MDI 분할·창 크기·모바일 세로스택 전환을 화면 코드 없이 추종한다(MOCA 동일).</li>
+  <li><b>테마</b> — <code>theme="auto"</code>(기본)면 OS 다크에서 echarts 내장 dark 테마(MOCA 앱 기조 대응).
+    축·그리드 등 option 안의 색은 화면이 팔레트를 분기해 준다(데모 참고).</li>
+  <li><b>해제</b> — 언마운트 시 자동 dispose(MOCA destroy 대응 — 화면 코드가 부를 일 없음).</li>
+  <li>option 갱신은 전체 교체(notMerge)가 기본, <code>merge</code> 로 부분 갱신. 데이터가 크면
+    시리즈만 바꾸는 merge 가 유리하다.</li>
+  <li>높이 0 이면 조용히 안 보인다 — 부모(pane) 높이를 확인할 것(MOCA 동일 주의).</li>
+  <li>데모: 샘플 &gt; 차트 (<code>src/screens/ChartTest.jsx</code> — MOCA 대시보드 위젯 3종 이식).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactEchart">API 문서의 MocaReactEchart</a> 절.</p>
+
+<h2 id="d13">D13. MocaReactSearchCombo — 검색형 콤보</h2>
+<p>MOCA <code>data-m-type="searchCombo"</code>(searchCombo.js)의 React 판.
+항목이 수십·수백 건이라 <code>select</code> 로는 훑기 힘든 자리에 쓴다 —
+입력칸에 몇 글자 치면 그 글자를 포함한 항목만 남는다.</p>
+<pre><code>import { MocaReactSearchCombo } from '@teammoca/react-search-combo'
+
+// 값 고르기 — 제어 컴포넌트(값의 주인은 화면)
+&lt;MocaReactSearchCombo list={areas} value={area} onChange={(v) =&gt; setArea(v)} /&gt;
+
+// 코드까지 검색되게
+&lt;MocaReactSearchCombo list={codes} displayFormat="[value] · [label]" width={220} /&gt;
+
+// 검색창 용법 — 고르면 입력칸이 비워진다
+&lt;MocaReactSearchCombo list={menuList} clearOnSelect placeholder="메뉴 검색" onChange={openScreen} /&gt;</code></pre>
+<ul>
+  <li><b>★ 필터는 화면에 보이는 표시문구 기준</b>이다(대소문자 무시). <code>nm</code> 만 보이면 검색도
+    <code>nm</code> 으로만 된다 — 코드·분류로도 걸리게 하려면 <code>displayFormat</code> 으로 문구에 넣는다.</li>
+  <li><b>확정은 Enter/클릭뿐</b> — 타이핑 중에는 <code>onChange</code> 가 오지 않는다. 목록 이동은
+    <span class="kbd">↓</span> <span class="kbd">↑</span>, 닫기는 <span class="kbd">Esc</span>,
+    <span class="kbd">▼</span> 는 필터를 풀고 전체 목록을 연다.</li>
+  <li><b>같은 항목을 다시 골라도 발화</b>한다(<code>changed:false</code>) — 메뉴 검색처럼 "값"이 아니라
+    "행위"가 필요한 화면 때문.</li>
+  <li>목록은 뷰포트 기준(<code>fixed</code>)으로 뜬다 — 레이아웃 칸(<code>overflow:auto</code>)이나 헤더 안에서
+    잘리지 않고, 아래 자리가 모자라면 위로 뒤집힌다(MOCA 동일 방식).</li>
+  <li>결과가 0건이면 목록을 닫지 않고 <code>emptyText</code> 안내를 보여준다.</li>
+  <li><code>ref</code> 로 <code>getValue·getLabel·setValue·clear·focus·open·close·getList</code>.</li>
+  <li>데모: 샘플 &gt; 검색 콤보 (<code>src/screens/SearchComboTest.jsx</code>).</li>
+</ul>
+<p>전체 API 는 <a href="moca-react-api.html#c-MocaReactSearchCombo">API 문서의 MocaReactSearchCombo</a> 절.</p>
+
+<h2 id="d14">D14. 아키텍처 노트 — 왜 이렇게 만들었나</h2>
+<table>
+<tr><th>결정</th><th>이유</th></tr>
+<tr><td>가상 스크롤 = <b>전용 스크롤바</b> 방식<br>(MOCA <code>.moca_scrollY_type1</code> 이식)</td>
+    <td>네이티브 세로 스크롤은 컴포지터가 메인 스레드보다 먼저 픽셀을 밀어 빠른 스크롤 시 빈 화면이 노출된다(<code>flushSync</code> 로도 못 막음). 콘텐츠를 <code>overflow-y: hidden</code> 으로 고정하고 전용 스크롤바가 "어느 행부터 그릴지"만 바꾸면 플래시가 구조적으로 불가능하다. <b>이 구조를 네이티브 스크롤로 바꾸지 말 것.</b></td></tr>
+<tr><td>스크롤·드래그 리렌더는 <code>flushSync</code></td>
+    <td>React 스케줄러가 리렌더를 다음 매크로태스크로 미루면 한 프레임 늦게 그려진다. 이벤트 안에서 동기 렌더로 페인트 전에 끝낸다. 제거 금지.</td></tr>
+<tr><td>MDI 콘텐츠는 탭별 고정 홀더 + <code>createPortal</code></td>
+    <td>콘텐츠를 패널 JSX 안에 렌더하면 패널 이동 = 트리 위치 변경 = <b>리마운트</b>라 화면 상태가 날아간다. 홀더 div 를 한 번만 만들어 portal 로 렌더하고, 홀더 DOM 만 <code>appendChild</code> 로 패널 간 이동(MOCA 의 DOM 이동과 동일 효과). 이 구조를 바꾸지 말 것.</td></tr>
+<tr><td>컬럼 폭은 최초 실측 후 전부 px 고정</td><td>리사이징이 단순 state 변경이 된다.</td></tr>
+<tr><td>가상화 라이브러리 미사용</td><td>고정 행높이면 직접 구현 ~30줄로 충분, 의존성 0. 가변 행높이 요구가 생기면 그때 검토.</td></tr>
+<tr><td>테마는 <code>&lt;html data-theme&gt;</code> 에 <b>해석된 값</b>만 박는다</td>
+    <td>저장값은 <code>system|light|dark</code> 지만 DOM 에는 <code>light|dark</code> 만 넣는다(<code>src/theme.js</code>) — CSS 가 "지금 어떤 팔레트인가" 한 가지만 보면 되기 때문. 적용은 <b>페인트 전</b>(<code>index.html</code> 인라인 스크립트)이라 라이트로 그려졌다 뒤집히는 번쩍임이 없다.
+    <b>패키지 CSS 는 다크 토큰을 두 벌 쓴다</b>: <code>@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) … }</code> 와 <code>:root[data-theme="dark"] …</code>.
+    앞은 <b>data-theme 이 없는 외부 앱</b>이 종전대로 OS 를 따르게 하고, 뒤는 호스트의 선택이 이기게 한다. 두 블록의 값은 같아야 한다 — 한쪽만 고치면 조용히 어긋난다.</td></tr>
+</table>
+
+<h2 id="d15">D15. 문서·스킬 관리 체계 (skill · catalog · api · guide)</h2>
+<p>MOCA 원본의 catalog.js / moca-api.html / moca-guide.html 체계를 그대로 가져왔다.
+<b>패키지 공개 API 나 화면 등록 규약, 사용자 UX 를 만들거나 고치면 같은 커밋에서 함께 갱신한다:</b></p>
+<table>
+<tr><th>대상</th><th>파일</th><th>성격</th></tr>
+<tr><td>Catalog</td><td><code>docs/catalog.js</code></td><td>공개 API 단일 선언부 — 규칙은 파일 헤더 주석(공개 API 만 · 한 항목 = API 하나 · '예)' 코드 분리)</td></tr>
+<tr><td>API 문서</td><td><code>docs/moca-react-api.html</code></td><td><b>전량 생성</b>(<code>npm run apidoc</code>) — 손으로 고치지 않는다</td></tr>
+<tr><td>가이드</td><td><code>docs/moca-react-guide.html</code> (이 문서)</td><td><b>손으로 쓴다</b> — 사용자 UX 나 개발 절차가 바뀌면 해당 절을 고치고 상단 version/date 메타를 올린다</td></tr>
+<tr><td>Skill</td><td><code>.claude/skills/*/SKILL.md</code></td><td>작업 절차·내부 규칙 — 새 패키지를 만들면 스킬도 같은 꼴로 추가</td></tr>
+<tr><td>README</td><td><code>packages/*/README.md</code></td><td>패키지 단독 배포용 props 문서</td></tr>
+</table>
+<div class="warn">API 문서는 카탈로그에서 전량 생성되므로 HTML 을 직접 고치면 다음 생성 때 날아간다.
+반대로 이 가이드는 손으로 쓰는 문서다 — 생성기를 만들어 덮어쓰지 말 것.</div>
+
+<h3>문서는 앱과 함께 배포된다</h3>
+<p><code>vite build</code> 가 <code>docs/*.html</code> 을 <code>dist/docs/</code> 로 함께 복사한다
+(<code>vite.config.js</code> 의 <code>copyDocs</code> 플러그인). 그래서 <code>npm run deploy</code> 한 번이면
+앱과 문서가 같이 올라가고, 운영에서는 아래 주소로 열린다 — MOCA 가 문서를 엔진 옆
+(<code>/vendor/moca/docs/</code>)에 두는 것과 같은 자리다.</p>
+<table>
+<tr><th>문서</th><th>주소</th></tr>
+<tr><td>사용자·개발자 가이드</td><td><code>/system/react/docs/moca-react-guide.html</code></td></tr>
+<tr><td>API 문서</td><td><code>/system/react/docs/moca-react-api.html</code></td></tr>
+</table>
+<p>팀모카 홈페이지(<code>teammoca.co.kr</code>)의 <b>MOCA React 섹션</b>과 <b>문서 섹션</b>이 이 주소로 링크를 건다.
+문서 파일명을 바꾸면 홈페이지(<code>moca2026ai</code> 의 <code>system/homepage/index.html</code>)의 링크도 함께 고친다.</p>
+
+<h2 id="d16">D16. 검증 방법</h2>
+<ul>
+  <li>브라우저 실측이 표준 — Claude in Chrome 으로 <code>localhost:5173</code> 접속, 스크린샷·DOM 실측.</li>
+  <li><b>백그라운드 탭 한계</b>: rAF·ResizeObserver·레이아웃 갱신이 멈춘다 → 리사이즈/애니메이션류는 탭을 앞에 두고 확인.</li>
+  <li>HMR 이 이전 컴포넌트 state(컬럼폭 등)를 유지할 수 있다 → 이상하면 F5 후 판단.</li>
+  <li>MOCA 원본과 비교: <code>http://localhost:8080/system/demo/index.html</code> (원본 소스 <code>MOCA2026PORTABLE</code>).</li>
+</ul>
+
+<h2 id="d17">D17. MOCA React Studio — 브라우저에서 화면 만들기</h2>
+<p>화면(<code>.jsx</code>)을 브라우저에서 편집하는 웹 IDE 다. <code>npm run dev</code> 뒤 <code>http://localhost:5173/studio.html</code> 로 연다(배포본은 <code>studio.html</code>).
+제목줄의 <b>코드 | 화면 설계</b> 로 두 방식을 오간다.</p>
+<table>
+<tr><th>기능</th><th>쓰는 법</th></tr>
+<tr><td>작업 공간</td><td><b>이 저장소</b> = 스튜디오를 띄운 개발 서버의 파일(저장하면 미리보기가 바로 바뀐다) · <b>로컬 폴더</b> = 이 PC 의 폴더(Chrome·Edge, 미리보기 없음)</td></tr>
+<tr><td>자동완성·호버</td><td><code>&lt;Moca</code> → 컴포넌트(고르면 <code>import</code> 줄도 들어간다) · 태그 안 → 속성·이벤트(설명 포함, 이미 쓴 것은 빠진다) · <code>ref</code> 를 붙인 것은 <code>grid.current.</code> 에서 그 메서드만 · <code>tran.</code>·<code>msgbox.</code>·<code>popup.</code> · 이름 위에 마우스를 올리면 설명. 전부 <a href="moca-react-api.html">API 문서</a>와 같은 <code>docs/catalog.js</code> 에서 읽는다</td></tr>
+<tr><td>Outline · 속성 · 팔레트</td><td>오른쪽 패널. Outline 은 컴포넌트 태그 트리(누르면 그 줄로), 속성은 커서가 든 태그의 속성 표(지정한 것은 굵게·값 표시), 팔레트는 누르면 커서 자리에 <code>&lt;컴포넌트 /&gt;</code> 와 import 를 넣는다</td></tr>
+<tr><td>미리보기</td><td>지금 파일이 메뉴 화면(<code>registry.jsx</code> 에 등록된 것)이면 오른쪽 앱에서 그 화면을 연다(<a href="moca-react-api.html#a-studio">app.studio</a> 약속). Ctrl+S 로 저장하면 HMR 로 그 자리에서 바뀐다. 처음 한 번은 앱 로그인(moca/moca)이 필요하다</td></tr>
+<tr><td>＋ 새 화면</td><td>메뉴 이름·컴포넌트 이름·그룹·템플릿(빈 화면 / 조회 그리드)을 고르면 <code>src/screens/이름.jsx</code> 를 표준 골격(<a href="#d3">D3</a>)으로 만들고 <code>registry.jsx</code> 에 lazy 한 줄 + 메뉴 한 줄을 넣는다</td></tr>
+<tr><td>화면 설계</td><td>제목줄 · 검색조건 · 목록 그리드 · 칸 나누기(<code>MocaReactLayout</code>) · 안내문 · 떠 있는 버튼을 끌어 놓고 오른쪽에서 값(라벨·queryId·컬럼·비율)을 고친다. <b>화면으로 만들기</b> = 위 「새 화면」과 같은 등록 + 설계를 <code>studio/designs/이름.json</code> 에 남긴다. 저장한 설계는 다시 열어 <b>다시 만들기</b>로 코드를 덮을 수 있다(손으로 고친 코드는 덮이므로 묻는다). 설계 편집기는 Puck(MIT)이다</td></tr>
+</table>
+<p>스튜디오 소스는 <code>studio/</code>(셸 <code>Studio.jsx</code> · 편집기 <code>monaco.js</code> · JSX 읽기 <code>jsx.js</code> · 레지스트리 <code>registry.js</code> · 설계 <code>design/</code>), 개발 서버 쪽 파일 API 는 <code>tools/studio-plugin.js</code>(이 PC 에서 온 요청만, 저장소 안·허용 확장자만 쓴다).
+편집기(Monaco)는 번들하지 않고 MOCA 서버의 <code>/vendor/monaco-editor_0.52.2/</code> 를 쓴다 — 개발 서버는 형제 폴더 <code>moca2026ai</code> 의 사본을 같은 주소로 내준다(다른 위치면 환경변수 <code>MOCA_MONACO_DIR</code>).</p>
+
+</div>
+</body>
+</html>

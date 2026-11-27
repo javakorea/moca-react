@@ -1,0 +1,20 @@
+{
+  "name": "@teammoca/react-popup",
+  "version": "0.1.0",
+  "description": "MOCA React Popup — 화면(컴포넌트)을 모달로 띄우고 결과를 받는 팝업. 열기·파라미터·닫기 3동사",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

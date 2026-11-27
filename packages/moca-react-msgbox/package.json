@@ -1,0 +1,20 @@
+{
+  "name": "@teammoca/react-msgbox",
+  "version": "0.1.0",
+  "description": "MOCA React MsgBox — alert · error · confirm(선택목록) · 필수값 안내 · 진행 모달. 화면 어디서나 명령형으로 부르고 await 로 받는다",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

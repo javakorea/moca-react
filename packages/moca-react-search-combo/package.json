@@ -1,0 +1,20 @@
+{
+  "name": "@teammoca/react-search-combo",
+  "version": "0.1.0",
+  "description": "MOCA React SearchCombo — 타이핑으로 목록을 좁혀 고르는 검색형 콤보(MOCA searchCombo 이식)",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

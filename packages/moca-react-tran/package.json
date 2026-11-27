@@ -1,0 +1,20 @@
+{
+  "name": "@teammoca/react-tran",
+  "version": "0.1.0",
+  "description": "MOCA React Tran — MOCA 공용 쿼리 API(queryId 기반 select/save)와 통신하는 데이터 레이어 + React 훅",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

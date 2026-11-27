@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="ko" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+<meta name="google" content="notranslate">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>moca_react</title>
+    <!-- 테마를 페인트 전에 박는다 — React 가 뜬 뒤에 적용하면 라이트로 한 번 그려졌다가
+         다크로 뒤집히는 번쩍임이 보인다. 저장값 해석 규칙은 src/theme.js 와 같아야 한다.
+         (모듈 스크립트는 defer 라 여기서 먼저 실행되도록 일반 스크립트로 둔다) -->
+    <script>
+      (function () {
+        var t = 'system'
+        try { t = localStorage.getItem('moca-react-theme') || 'system' } catch (e) { /* 프라이빗 모드 */ }
+        var dark = t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>

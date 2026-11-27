@@ -1,0 +1,765 @@
+/* MOCA React InputCalendar — MOCA .moca_ica / .moca_calendar 이식.
+   색은 MOCA demo 토큰 값(라이트 = Warm Paper / 다크 = Technical Dark) */
+.mic {
+  --mic-bg: #fffdf9;        /* --c-surface */
+  --mic-pop-bg: #ffffff;    /* --c-white */
+  --mic-border: #e7e0d4;    /* --c-border */
+  --mic-border-d: #d8cfbe;  /* --c-border-dark */
+  --mic-text: #4a463c;      /* --c-text */
+  --mic-sub: #6b6455;       /* --c-text-sub */
+  --mic-primary: #0f766e;   /* --c-primary */
+  --mic-primary-l: #d3ede9; /* --c-primary-light */
+  --mic-sat: #1c5d99;       /* 토요일 */
+  --mic-sun: #b4493e;       /* 일요일 --c-danger */
+
+  position: relative;
+  display: inline-block;
+  width: 160px;
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 13px;
+  color: var(--mic-text);
+  box-sizing: border-box;
+}
+
+/* 입력칸 + 달력 버튼 */
+.mic-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--mic-border-d);
+  border-radius: 5px;
+  background: var(--mic-bg);
+  overflow: hidden;
+}
+
+.mic-box:focus-within {
+  border-color: var(--mic-primary);
+}
+
+.mic-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 5px 7px;
+}
+
+.mic-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 3px 6px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.mic-btn:hover:not(:disabled) {
+  background: var(--mic-primary-l);
+}
+
+.mic-btn:disabled {
+  cursor: default;
+  opacity: 0.4;
+}
+
+/* 읽기전용 — 잠금(MOCA readonly 대응) */
+.mic-ro .mic-box {
+  background: #f3efe6; /* --c-grid-th */
+  color: var(--mic-sub);
+}
+
+/* ── 달력 팝업 (MOCA .moca_calendar — 카드) ──
+   body 로 portal + fixed: 스크롤 영역(폼·패널 overflow:auto) 안에서도 잘리지 않는다.
+   좌표는 컴포넌트가 입력칸 기준으로 계산해 인라인으로 준다(아래 우선, 넘치면 위).
+   팝업은 .mic 밖(body)에 있으므로 색 토큰을 여기서 다시 정의한다 */
+.mic-pop {
+  --mic-pop-bg: #ffffff;
+  --mic-bg: #fffdf9;
+  --mic-border: #e7e0d4;
+  --mic-border-d: #d8cfbe;
+  --mic-text: #4a463c;
+  --mic-sub: #6b6455;
+  --mic-primary: #0f766e;
+  --mic-primary-l: #d3ede9;
+  --mic-sat: #1c5d99;
+  --mic-sun: #b4493e;
+
+  position: fixed;
+  /* z-index 사다리(프로젝트 공통): MDI 전체화면 7000 < 업무 팝업 7500+ < 달력 팝업 7800
+     < 메시지박스 8000 < 진행 모달 8100.
+     달력이 업무 팝업보다 위인 이유 — 팝업 안의 날짜 입력이 달력을 열면 그것이 보여야 한다 */
+  z-index: 7800;
+  width: 240px;
+  background: var(--mic-pop-bg);
+  border: 1px solid var(--mic-border-d);
+  border-radius: 6px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+  box-sizing: border-box;
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 13px;
+  color: var(--mic-text);
+}
+
+.mic-head {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 6px;
+  border-bottom: 1px solid var(--mic-border-d);
+  background: var(--mic-bg);
+  border-radius: 6px 6px 0 0;
+}
+
+.mic-title {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.mic-nav,
+.mic-today,
+.mic-ok {
+  border: 1px solid var(--mic-border-d);
+  background: transparent;
+  color: var(--mic-sub);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 6px;
+  cursor: pointer;
+}
+
+.mic-nav:hover:not(:disabled),
+.mic-today:hover:not(:disabled) {
+  background: var(--mic-primary-l);
+  color: var(--mic-primary);
+  border-color: var(--mic-primary);
+}
+
+.mic-nav:disabled,
+.mic-today:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.mic-body {
+  padding: 5px 6px 6px;
+}
+
+/* 요일 머리 */
+.mic-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mic-sub);
+  padding-bottom: 2px;
+}
+
+.mic-grid {
+  display: grid;
+  gap: 2px;
+}
+
+.mic-grid-7 { grid-template-columns: repeat(7, 1fr); }
+.mic-grid-4 { grid-template-columns: repeat(4, 1fr); }
+
+/* 일자 격자의 **행 높이를 못박는다** — 내용(빈 칸·공휴일명·굵은 오늘 표시)에 따라 줄 높이가
+   달라지면 6줄 고정인데도 달력 전체 높이가 월마다 흔들린다(2026-08-19 실측: 169 ↔ 174).
+   칸 크기가 다른 문맥(모바일 단일/기간)은 --mic-day-h 만 바꿔 쓴다. */
+.mic-pop .mic-grid-7 {
+  grid-auto-rows: var(--mic-day-h, 24px);
+}
+
+/* 칸 — 숫자 버튼 */
+.mic-cell {
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  border-radius: 4px;
+  font-size: 11.5px;
+  padding: 5px 0;
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+
+.mic-cell:hover:not(:disabled):not(.mic-empty) {
+  background: var(--mic-primary-l);
+  color: var(--mic-primary);
+  border-color: var(--mic-primary);
+}
+
+.mic-empty {
+  cursor: default;
+}
+
+/* 주말 색 (MOCA 달력 규약 — 토 파랑 · 일 빨강) */
+.mic-sat { color: var(--mic-sat); }
+.mic-sun { color: var(--mic-sun); }
+
+/* 오늘 — 테두리로 표시 */
+.mic-today-cell {
+  border-color: var(--mic-primary);
+  font-weight: 700;
+}
+
+/* 선택 — 채운 배경 (MOCA .moca_calendar_selected) */
+.mic-cell.mic-sel {
+  background: var(--mic-primary);
+  border-color: var(--mic-primary);
+  color: #fff;
+  font-weight: 700;
+}
+
+/* 범위 밖 — 잠김 (MOCA .moca_calendar_date_disabled) */
+.mic-dis {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* 기간의 사이 칸 — 양 끝(.mic-sel) 사이를 연하게 채워 기간을 눈으로 보여준다 */
+.mic-cell.mic-between {
+  background: var(--mic-primary-l);
+  color: var(--mic-primary);
+}
+
+/* ── 기간 달력 (from ~ to) ── */
+.mic-multi {
+  width: auto;
+}
+
+.mic-multi .mic-input {
+  width: 100px;
+  flex: 0 1 auto;
+  text-align: center;
+}
+
+.mic-tilde {
+  color: var(--mic-sub);
+  padding: 0 2px;
+  flex: none;
+}
+
+/* 팝업 — 빠른선택 + 좌·우 두 판이 나란히 */
+.mic-pop-multi {
+  width: auto;
+}
+
+.mic-multi-row {
+  display: flex;
+  align-items: stretch;
+}
+
+.mic-side {
+  display: flex;
+  flex-direction: column;
+  width: 240px;
+}
+
+/* 두 판 사이 구분선 */
+.mic-side + .mic-side {
+  border-left: 1px solid var(--mic-border);
+}
+
+.mic-side-label {
+  padding: 4px 8px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--mic-primary);
+}
+
+/* 빠른선택 목록 (MOCA .moca_calendar_list) */
+.mic-quick {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px 6px;
+  border-right: 1px solid var(--mic-border);
+  background: var(--mic-bg);
+  border-radius: 6px 0 0 6px;
+  min-width: 76px;
+}
+
+.mic-quick-btn {
+  border: 1px solid var(--mic-border-d);
+  background: transparent;
+  color: var(--mic-sub);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 5px 6px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.mic-quick-btn:hover {
+  background: var(--mic-primary-l);
+  color: var(--mic-primary);
+  border-color: var(--mic-primary);
+}
+
+/* 일시 기간 — 확인 줄 */
+.mic-foot-ok {
+  justify-content: flex-end;
+  gap: 8px;
+  /* 요약이 길면 **버튼을 밀어내지 말고 줄을 바꾼다** — 버튼은 항상 온전해야 한다 */
+  flex-wrap: wrap;
+}
+
+/* ══ 붙박이 달력 (MocaReactCalendar — MOCA .moca_cal) ══
+   팝업이 아니라 화면에 늘 펼쳐진 달력이라 칸이 크고, 공휴일명·표식이 칸 안에 들어간다.
+   색 토큰은 .mic 과 같은 값을 쓴다(팝업 밖이라 다시 정의) */
+.mrc {
+  --mic-bg: #fffdf9;
+  --mic-pop-bg: #ffffff;
+  --mic-border: #e7e0d4;
+  --mic-border-d: #d8cfbe;
+  --mic-text: #4a463c;
+  --mic-sub: #6b6455;
+  --mic-primary: #0f766e;
+  --mic-primary-l: #d3ede9;
+  --mic-sat: #1c5d99;
+  --mic-sun: #b4493e;
+
+  display: inline-block;
+  width: 300px;
+  border: 1px solid var(--mic-border-d);
+  border-radius: 6px;
+  background: var(--mic-pop-bg);
+  color: var(--mic-text);
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 13px;
+  box-sizing: border-box;
+}
+
+/* 칸을 키운다 — 공휴일명이 들어갈 자리가 필요하다 */
+.mrc .mic-cell {
+  min-height: 34px;
+  flex-direction: column;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+  position: relative;
+  padding: 3px 0;
+  font-size: 12.5px;
+}
+
+.mrc .mic-week {
+  padding-bottom: 3px;
+}
+
+/* 제목 클릭(한 단계 위로) — 버튼이지만 제목처럼 보이게 */
+.mic-title-btn {
+  border: 1px solid transparent;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.mic-title-btn:hover {
+  background: var(--mic-primary-l);
+  color: var(--mic-primary);
+}
+
+/* 공휴일 — 날짜를 빨갛게 + 칸에 이름 */
+.mic-cell.mic-holi {
+  color: var(--mic-sun);
+}
+
+.mic-holinm {
+  font-size: 9.5px;
+  line-height: 1.1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.85;
+}
+
+/* 표식(badge) — 칸 우측 위 */
+.mic-badge {
+  position: absolute;
+  top: 1px;
+  right: 2px;
+  font-size: 8.5px;
+  line-height: 1.2;
+  padding: 0 2px;
+  border-radius: 3px;
+  background: var(--mic-primary);
+  color: #fff;
+}
+
+/* 비영업일 — 빗금 배경(MOCA 규약: 주말 자동 + dayInfo.off) */
+.mic-cell.mic-off {
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 3px,
+    color-mix(in srgb, var(--mic-sub) 22%, transparent) 3px,
+    color-mix(in srgb, var(--mic-sub) 22%, transparent) 4px
+  );
+}
+
+/* 선택 칸은 빗금 위에 채운 배경이 이겨야 한다 */
+.mrc .mic-cell.mic-sel {
+  background-image: none;
+}
+
+/* 선택 잠금(readOnly) — 달 이동은 되고 칸만 눌리지 않는다 */
+.mrc-ro .mic-grid .mic-cell:not(.mic-empty) {
+  cursor: default;
+}
+
+/* 범례 — 지금 달력에 있는 표시만 설명한다 */
+.mic-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding: 6px 8px 7px;
+  border-top: 1px solid var(--mic-border);
+  font-size: 11px;
+  color: var(--mic-sub);
+}
+
+.mic-lg {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* 견본은 실제 칸과 같은 모양으로 — 원 테두리(오늘) · 채운 원(선택) · 빨간 점(공휴일) · 빗금(비영업일) */
+.mic-lg i {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  display: inline-block;
+}
+
+.mic-lg-today { border: 1px solid var(--mic-primary); }
+.mic-lg-sel { background: var(--mic-primary); }
+.mic-lg-holi { background: var(--mic-sun); border-radius: 50%; }
+.mic-lg-off {
+  border: 1px solid var(--mic-border-d);
+  background-image: repeating-linear-gradient(
+    45deg,
+    transparent, transparent 2px,
+    color-mix(in srgb, var(--mic-sub) 35%, transparent) 2px,
+    color-mix(in srgb, var(--mic-sub) 35%, transparent) 3px
+  );
+}
+
+/* 확정 줄의 요약 — 지금 고른 기간을 그대로 보여준다. 좁으면 버튼이 먼저 살아야 하므로
+   여기가 줄고(말줄임) 버튼은 줄지 않는다 */
+.mic-foot-hint {
+  font-size: 11px;
+  color: var(--mic-sub);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* [취소] — [확인](primary)보다 약하게. 되돌리는 버튼이 더 눈에 띄면 안 된다 */
+.mic-cancel {
+  border: 1px solid var(--mic-border-d);
+  background: transparent;
+  color: var(--mic-sub);
+  border-radius: 4px;
+  font-size: 11px;
+  padding: 2px 8px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.mic-cancel:hover {
+  background: var(--mic-primary-l);
+  color: var(--mic-primary);
+  border-color: var(--mic-primary);
+}
+
+/* 확정 줄의 버튼 묶음 — 줄이 바뀌어도 두 버튼은 늘 함께 움직인다 */
+.mic-foot-btns {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+/* [취소]·[확인] 은 **같은 크기**로 둔다(사용자 지시 2026-08-19) — 글자수는 같은데 [확인] 만
+   굵어서 폭이 달랐다. 차이는 색으로만 준다 */
+.mic-foot-ok .mic-cancel,
+.mic-foot-ok .mic-ok {
+  flex-shrink: 0;
+  min-width: 62px;
+  font-size: 11px;
+  padding: 3px 10px;
+  text-align: center;
+}
+
+/* ── 시각 선택 + 확인 (일시 타입 — MOCA .moca_calendar_footer) ── */
+.mic-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  padding: 5px 6px;
+  border-top: 1px solid var(--mic-border);
+}
+
+.mic-time {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.mic-time i {
+  font-style: normal;
+  font-size: 11px;
+  color: var(--mic-sub);
+  margin-right: 3px;
+}
+
+.mic-time-sel {
+  border: 1px solid var(--mic-border-d);
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: 11px;
+  padding: 2px 1px;
+}
+
+/* [확인] — 채운 primary. 이 줄에서 **다음에 눌러야 할 것**이 무엇인지 색으로 말한다
+   (사용자 지시 2026-08-19: 우선순위 색). 다크는 primary 가 밝아 글자를 어둡게 뒤집는다 */
+.mic-ok {
+  border-color: var(--mic-primary);
+  background: var(--mic-primary);
+  color: #fff;
+  font-weight: 700;
+  padding: 3px 10px;
+}
+
+.mic-ok:hover {
+  filter: brightness(1.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  /* 팝업은 body 로 portal 되어 .mic 안이 아니므로 세 곳 모두 지정해야 한다 */
+  :root:not([data-theme="light"]) .mic,
+:root:not([data-theme="light"]) .mic-pop,
+:root:not([data-theme="light"]) .mrc {
+    --mic-bg: #131a21;
+    --mic-pop-bg: #161f29;
+    --mic-border: #1e2f3d;
+    --mic-border-d: #2a3644;
+    --mic-text: #d5dee7;
+    --mic-sub: #93a5b6;
+    --mic-primary: #14b8a6;
+    --mic-primary-l: #123b38;
+    --mic-sat: #7fc1ff;
+    --mic-sun: #ff8a80;
+  }
+
+  :root:not([data-theme="light"]) .mic-ro .mic-box {
+    background: #0f161d;
+  }
+
+  :root:not([data-theme="light"]) .mic-cell.mic-sel {
+    color: #06131a;
+  }
+
+  :root:not([data-theme="light"]) .mic-ok {
+    color: #06131a;
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+/* 팝업은 body 로 portal 되어 .mic 안이 아니므로 세 곳 모두 지정해야 한다 */
+:root[data-theme="dark"] .mic,
+:root[data-theme="dark"] .mic-pop,
+:root[data-theme="dark"] .mrc {
+  --mic-bg: #131a21;
+  --mic-pop-bg: #161f29;
+  --mic-border: #1e2f3d;
+  --mic-border-d: #2a3644;
+  --mic-text: #d5dee7;
+  --mic-sub: #93a5b6;
+  --mic-primary: #14b8a6;
+  --mic-primary-l: #123b38;
+  --mic-sat: #7fc1ff;
+  --mic-sun: #ff8a80;
+}
+
+:root[data-theme="dark"] .mic-ro .mic-box {
+  background: #0f161d;
+}
+
+:root[data-theme="dark"] .mic-cell.mic-sel {
+  color: #06131a;
+}
+
+:root[data-theme="dark"] .mic-ok {
+  color: #06131a;
+}
+
+
+/* ══ 모바일(≤768px) — 화면 가운데 큰 달력 (MOCA mobile.css 의 .moca_calendar 규칙 이식) ══
+   PC 는 입력칸 옆에 붙는 240px 팝업이지만, 손가락으로 11.5px 숫자 칸을 짚을 수 없다.
+   화면 중앙 모달로 띄우고 칸을 키운다.
+   · 위치는 JS 가 인라인 style(top/left)로 넣으므로 !important 로 덮는다 — MOCA 도 같은 이유로
+     !important 를 쓴다. 그래서 위치 계산 코드는 손대지 않아도 된다.
+   · 딤은 별도 DOM 없이 아주 큰 box-shadow 로 그린다(MOCA 와 같은 수법). 포인터를 가로채지
+     않으므로 기존 "바깥 클릭 닫기"가 그대로 동작한다 — 오버레이 div 를 덧대면 그 동작이 깨진다. */
+@media (max-width: 768px) {
+  .mic-pop {
+    position: fixed !important;
+    top: 50% !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%);
+    width: calc(100vw - 40px) !important;
+    max-width: 410px;
+    max-height: calc(100svh - 56px);
+    overflow-y: auto;
+    border-radius: 10px;
+    font-size: 15px;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18), 0 0 0 200vmax rgba(0, 0, 0, 0.55);
+  }
+
+  /* 머리 — 이전/다음/오늘 버튼을 손가락 크기로 */
+  .mic-head {
+    padding: 8px 10px;
+    gap: 6px;
+  }
+
+  .mic-title { font-size: 16px; }
+
+  .mic-nav,
+  .mic-today,
+  .mic-ok {
+    font-size: 14px;
+    padding: 8px 12px;
+  }
+
+  .mic-body { padding: 8px 10px 10px; }
+  .mic-week { font-size: 13px; padding-bottom: 6px; }
+
+  /* 날짜 칸 — MOCA 는 td 높이 50px. 여기서는 패딩으로 같은 크기를 만든다 */
+  .mic-grid { gap: 4px; }
+
+  .mic-pop { --mic-day-h: 45px; } /* 모바일 단일 달력 — 손가락 크기 행 */
+
+  .mic-cell {
+    font-size: 15px;
+    padding: 13px 0;
+    border-radius: 6px;
+  }
+
+  .mic-holinm { font-size: 11px; }
+
+  /* ── 기간 달력(from~to) — 두 판을 가로로 놓으면 화면을 넘는다. 세로로 쌓고,
+        빠른선택은 가로 줄로 눕혀 한 화면에 들어오게 한다 (MOCA .moca_calendar_fromto 대응) ── */
+  .mic-pop-multi { width: calc(100vw - 32px) !important; }
+
+  .mic-multi-row { flex-direction: column; }
+
+  .mic-side { width: auto; }
+
+  .mic-side + .mic-side {
+    border-left: none;
+    border-top: 1px solid var(--mic-border);
+  }
+
+  .mic-quick {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: 1px solid var(--mic-border);
+    border-radius: 10px 10px 0 0;
+  }
+
+  .mic-quick-btn { font-size: 13px; padding: 8px 10px; }
+
+  /* 확정 줄도 손가락 크기로 — 여기가 작으면 기간을 골라 놓고 확정을 못 한다 */
+  .mic-foot { padding: 8px 10px; gap: 8px; }
+  /* 요약은 **말줄임 대신 두 줄로 접는다** — 폰 폭(320~370px)에서는 버튼을 아무리 줄여도
+     한 줄 33자가 안 들어간다. 잘라 보여주느니 `2026-08-01 00:00 ~` / `2026-08-31 23:59`
+     로 접는 편이 낫다. 두 줄(31px)이어도 버튼 높이 44px 안이라 줄 높이는 그대로다. */
+  .mic-foot-hint {
+    font-size: 12px;
+    min-width: 96px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
+    line-height: 1.3;
+  }
+  /* 버튼은 **높이(44px)를 지키고 폭만 줄인다** — 표적 크기는 세로가 지킨다 */
+  .mic-foot-ok { gap: 6px; padding: 6px 8px; }
+  .mic-foot-btns { gap: 6px; }
+  .mic-foot-ok .mic-cancel,
+  .mic-foot-ok .mic-ok { font-size: 14px; padding: 8px 10px; min-width: 62px; min-height: 44px; }
+
+  /* 시·분(초) 셀렉트 — 11px 짜리는 손가락으로 못 맞춘다.
+     남는 폭을 셀렉트끼리 균등하게 나눠 갖게 해(flex:1) 탭 영역을 최대로 키운다.
+     [확인]은 제 폭을 지키므로 줄바꿈 없이 한 줄에 남는다. */
+  .mic-time { flex: 1 1 auto; min-width: 0; gap: 6px; }
+  .mic-time i { font-size: 14px; margin-right: 2px; }
+
+  .mic-time-sel {
+    flex: 1 1 0;
+    min-width: 0;
+    height: 44px;
+    font-size: 17px;
+    text-align: center;
+    text-align-last: center; /* 닫힌 상태의 값도 가운데로 */
+    padding: 0 4px;
+    border-radius: 6px;
+  }
+
+  .mic-foot .mic-ok { min-height: 44px; }
+
+  /* 두 판을 쌓으면 세로가 길어진다 — **기간 달력만** 압축해 [확인]까지 한 화면에 넣는다.
+     압축 전에는 내용 821px 이 상한 690px 에 걸려 스크롤이 생겼다(2026-08-19 실측).
+     MOCA 도 같은 이유로 fromto 달력만 셀·헤더·버튼을 줄여 뒀다 — 단일 달력은 크게 둔다.
+     6줄 고정이라 한 줄만 줄여도 12px(×2판)씩 벌린다. */
+  .mic-pop-multi { --mic-day-h: 25px; } /* 기간 달력 — 두 판이라 더 촘촘히 */
+  .mic-pop-multi .mic-cell { font-size: 13px; padding: 4px 0; }
+  .mic-pop-multi .mic-grid { gap: 2px; }
+  .mic-pop-multi .mic-head { padding: 5px 8px; }
+  .mic-pop-multi .mic-title { font-size: 14px; }
+  .mic-pop-multi .mic-nav,
+  .mic-pop-multi .mic-today { font-size: 12px; padding: 5px 8px; }
+  .mic-pop-multi .mic-week { font-size: 12px; padding-bottom: 3px; }
+  .mic-pop-multi .mic-body { padding: 5px 8px 6px; }
+  .mic-pop-multi .mic-side-label { font-size: 12px; padding: 3px 8px 0; }
+
+  /* 기간 + 시각(mic-pop-time): 시각 줄이 **판마다 하나씩** 붙어 세로가 두 배로 는다.
+     단일 달력의 44px 를 그대로 두면 상한(690)을 넘어 빠른선택·[확인]이 잘렸다
+     (2026-08-19 실측 742px). 기간 달력에서만 시각 줄을 낮추고 날짜 칸을 2px 더 줄인다. */
+  .mic-pop-multi .mic-foot { padding: 4px 8px; }
+  .mic-pop-multi .mic-time { gap: 4px; }
+  .mic-pop-multi .mic-time i { font-size: 13px; }
+  .mic-pop-multi .mic-time-sel { height: 32px; font-size: 15px; }
+  .mic-pop-multi.mic-pop-time { --mic-day-h: 21px; }
+  /* 빠른선택 버튼 — 줄을 꽉 채우게 늘린다. 내용 크기로 두면 마지막 줄에 한둘만 남아 옆이
+     휑하게 비고, 그만큼 손가락 표적도 작다(사용자 지적 2026-08-19).
+     `flex: 1 1 auto` 는 **그 줄에 놓인 것들끼리** 남는 폭을 나눠 가지므로 프리셋 개수가
+     바뀌어도(quickItems) 항상 줄이 꽉 찬다 — 고정 칸수(grid)로 하면 개수가 안 맞을 때
+     또 빈칸이 생긴다. min-width 는 글자가 눌리지 않을 만큼만. */
+  .mic-pop-multi .mic-quick { padding: 6px; gap: 6px; }
+
+  .mic-pop-multi .mic-quick-btn {
+    flex: 1 1 auto;
+    min-width: 66px;
+    text-align: center;
+    font-size: 13px;
+    padding: 9px 6px;
+  }
+}

@@ -1,0 +1,335 @@
+/* MOCA React ScheduleCalendar — MOCA .moca_schcal 이식.
+   색은 MOCA demo 토큰 값(라이트 = Warm Paper / 다크 = Technical Dark) */
+.msc {
+  /* 부모가 높이를 주지 않는 자리에 놓여도 최소한의 높이는 갖는다(격자 6줄이 보이게).
+     최소 높이는 여기 한 곳에만 둔다 — 격자 행에 최소값을 주면 위 주석의 진동이 생긴다 */
+  min-height: 420px;
+  --msc-bg: #ffffff;
+  --msc-head-bg: #fffdf9;
+  --msc-border: #e7e0d4;
+  --msc-border-d: #d8cfbe;
+  --msc-text: #4a463c;
+  --msc-sub: #6b6455;
+  --msc-out: #a49b88;      /* 앞뒤월 칸 흐린 글자 */
+  --msc-primary: #0f766e;
+  --msc-primary-l: #d3ede9;
+  --msc-sat: #1c5d99;
+  --msc-sun: #b4493e;
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+  border: 1px solid var(--msc-border-d);
+  border-radius: 6px;
+  background: var(--msc-bg);
+  color: var(--msc-text);
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 13px;
+  overflow: hidden;
+}
+
+/* ── 헤더 (메뉴 · 이전 · 연월 · 다음 · 오늘) ── */
+.msc-head {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--msc-border);
+  background: var(--msc-head-bg);
+}
+
+.msc-hbtn {
+  border: 1px solid var(--msc-border-d);
+  background: transparent;
+  color: var(--msc-sub);
+  border-radius: 4px;
+  font-size: 12px;
+  padding: 3px 8px;
+  cursor: pointer;
+  line-height: 1.4;
+}
+
+.msc-hbtn:hover {
+  background: var(--msc-primary-l);
+  color: var(--msc-primary);
+  border-color: var(--msc-primary);
+}
+
+.msc-title {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 0 4px;
+  min-width: 72px;
+  text-align: center;
+}
+
+/* 오늘 버튼은 우측으로 */
+.msc-today-btn {
+  margin-left: auto;
+}
+
+/* ── 요일 머리 ── */
+.msc-week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  flex: none;
+  text-align: center;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--msc-sub);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--msc-border);
+  background: var(--msc-head-bg);
+}
+
+/* ── 6주 격자 — 남은 높이를 6줄이 균등하게 나눠 갖는다(월마다 높이가 뛰지 않는다).
+   ⚠ 행 크기에 minmax(64px, 1fr) 같은 "최소 높이"를 주면 그 요구가 부모(overflow:auto 인
+   레이아웃 칸)로 올라가고, 부모는 스크롤 여부를 다시 판단하며 크기를 되돌린다 —
+   둘이 서로를 재계산하며 브라우저가 멈춘다(실측으로 겪음: 월 이동 시 렌더러 프리즈).
+   1fr 로 두고 overflow:hidden 으로 요구를 격자 안에서 끊는다 — 칸이 좁으면 내용이 잘릴 뿐이다. */
+.msc-body {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  grid-template-rows: repeat(6, 1fr);
+  overflow: hidden;
+  touch-action: pan-y; /* 세로 스크롤은 살리고 가로 스와이프를 우리가 받는다 */
+}
+
+.msc-day {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  min-height: 0;
+  padding: 2px 3px 3px;
+  border-right: 1px solid var(--msc-border);
+  border-bottom: 1px solid var(--msc-border);
+  box-sizing: border-box;
+  cursor: pointer;
+  overflow: hidden;
+}
+
+.msc-day:nth-child(7n) { border-right: none; }
+.msc-body > .msc-day:nth-last-child(-n + 7) { border-bottom: none; }
+
+.msc-day:hover {
+  background: color-mix(in srgb, var(--msc-primary) 6%, transparent);
+}
+
+/* 앞뒤월 칸 — 흐리게 */
+.msc-out { color: var(--msc-out); }
+.msc-out .msc-date { opacity: 0.55; }
+
+/* 오늘 칸 — 옅은 배경 */
+.msc-today { background: color-mix(in srgb, var(--msc-primary) 8%, transparent); }
+
+/* 주말 날짜 색 (요일 머리와 칸 공통) */
+.msc-sat, .msc-sat .msc-date { color: var(--msc-sat); }
+.msc-sun, .msc-sun .msc-date { color: var(--msc-sun); }
+
+/* ── 날짜 영역 ── */
+.msc-datewrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  flex: none;
+  min-height: 16px;
+}
+
+.msc-date {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  padding: 0 2px;
+}
+
+/* 오늘 날짜 숫자 — 채운 배지 */
+.msc-date.msc-now {
+  background: var(--msc-primary);
+  color: #fff;
+  border-radius: 9px;
+  min-width: 18px;
+  text-align: center;
+}
+
+/* 공휴일 칸 — 이름을 날짜 위에 얹는다 */
+.msc-date-holiday {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0;
+}
+
+.msc-date-top {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  min-width: 0;
+}
+
+.msc-holi {
+  font-size: 9.5px;
+  color: var(--msc-sun);
+  line-height: 1.2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 날씨·뱃지 — 날짜 오른쪽 */
+.msc-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+  font-style: normal;
+}
+
+.msc-wthr, .msc-badge {
+  font-size: 10px;
+  font-style: normal;
+  line-height: 1;
+}
+
+/* dayRenderer 로 넣은 추가 내용 */
+.msc-dayextra {
+  font-size: 9.5px;
+  line-height: 1.2;
+  flex: none;
+}
+
+/* ── 일정 바 ── */
+.msc-day-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.msc-bar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  min-height: 15px;
+  padding: 0 3px;
+  border-radius: 3px;
+  font-size: 10.5px;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  flex: none;
+}
+
+.msc-bar em {
+  font-style: normal;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 종료일 칸 — 우측 정렬(이어지는 바의 끝처럼 보이게) */
+.msc-bar-e {
+  justify-content: flex-end;
+}
+
+/* 연속 일정의 중간·끝 — 인접 칸과 이어져 보이게 모서리를 죽인다 */
+.msc-bar-s { border-radius: 3px 0 0 3px; }
+.msc-bar-m { border-radius: 0; }
+.msc-bar-e { border-radius: 0 3px 3px 0; }
+
+/* 완료 — 배경 없음 + 취소선(마커·아이콘은 렌더 단계에서 이미 빠진다) */
+.msc-bar-done {
+  background: transparent !important;
+  color: var(--msc-sub) !important;
+  text-decoration: line-through;
+  opacity: 0.75;
+}
+
+/* 분류 마커 — 바 왼쪽(또는 종료일은 오른쪽) 작은 사각 */
+.msc-mark {
+  width: 4px;
+  height: 9px;
+  border-radius: 1px;
+  flex: none;
+}
+
+/* 중요 표시 */
+.msc-cru {
+  font-size: 8px;
+  line-height: 1;
+}
+
+/* ── 오늘 깃발 (MOCA todayflag) — 칸 위에 꽂힌 형태. 첫 주는 위 공간이 없어 안쪽에 세운다 ── */
+.msc-flag {
+  position: absolute;
+  top: -9px;
+  right: 2px;
+  z-index: 2;
+  background: var(--msc-primary);
+  color: #fff;
+  font-size: 8.5px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  pointer-events: none; /* 클릭은 아래 칸이 받는다 */
+  animation: msc-wave 2.4s ease-in-out infinite;
+}
+
+.msc-flag-in {
+  top: 2px;
+}
+
+@keyframes msc-wave {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+/* 모션 최소화 설정에서는 흔들림만 멈춘다(표시는 유지 — MOCA 동일) */
+@media (prefers-reduced-motion: reduce) {
+  .msc-flag { animation: none; }
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .msc {
+    --msc-bg: #10161d;
+    --msc-head-bg: #161f29;
+    --msc-border: #1e2f3d;
+    --msc-border-d: #2a3644;
+    --msc-text: #d5dee7;
+    --msc-sub: #93a5b6;
+    --msc-out: #5c6b7a;
+    --msc-primary: #14b8a6;
+    --msc-primary-l: #123b38;
+    --msc-sat: #7fc1ff;
+    --msc-sun: #ff8a80;
+  }
+
+  :root:not([data-theme="light"]) .msc-date.msc-now,
+:root:not([data-theme="light"]) .msc-flag { color: #06131a; }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .msc {
+  --msc-bg: #10161d;
+  --msc-head-bg: #161f29;
+  --msc-border: #1e2f3d;
+  --msc-border-d: #2a3644;
+  --msc-text: #d5dee7;
+  --msc-sub: #93a5b6;
+  --msc-out: #5c6b7a;
+  --msc-primary: #14b8a6;
+  --msc-primary-l: #123b38;
+  --msc-sat: #7fc1ff;
+  --msc-sun: #ff8a80;
+}
+
+:root[data-theme="dark"] .msc-date.msc-now,
+:root[data-theme="dark"] .msc-flag { color: #06131a; }
+

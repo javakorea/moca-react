@@ -1,0 +1,23 @@
+{
+  "name": "@teammoca/react-layout",
+  "version": "0.1.0",
+  "description": "MOCA React Layout — 방향(v/h) + 비율 토큰 하나로 화면을 반응형 분할하는 레이아웃 컴포넌트",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "dependencies": {
+    "@teammoca/react-floating-button": "*"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

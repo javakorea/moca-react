@@ -1,0 +1,1032 @@
+/* MOCA React Grid — MOCA demo 디자인 시스템(base.css)의 그리드 토큰을 그대로 가져온 스타일.
+   라이트 = Warm Paper 테마, 다크 = Technical Dark 테마(demo 기본). 값 출처: vendor/moca/css/base.css */
+.mrg,
+.mrg-fpanel { /* 필터 드롭다운은 포털로 body 에 붙어 .mrg 밖이다 — 토큰을 같이 받는다 */
+  /* ── 라이트(Warm Paper) 토큰 ── */
+  --mrg-bg: #fffdf9;            /* --c-surface */
+  --mrg-border: #e7e0d4;        /* --c-border */
+  --mrg-th-bg: #f3efe6;         /* --c-grid-th */
+  --mrg-th-text: #6b6455;       /* --c-text-muted */
+  --mrg-text: #4a463c;          /* --c-text-body */
+  --mrg-text-sub: #6b6455;      /* --c-text-sub */
+  --mrg-row-alt: #faf7f0;       /* --c-grid-row-alt */
+  --mrg-hover: #f0ebe1;         /* --c-grid-hover */
+  --mrg-selected: #d3ede9;      /* --c-grid-selected */
+  --mrg-text-selected: #0b5d56; /* --c-text-selected */
+  --mrg-bar-bg: #f6f2ea;        /* --c-grid-toolbar */
+  --mrg-bar-text: #6b6455;
+  --mrg-primary: #0f766e;       /* --c-primary */
+  --mrg-st-c: #3b7851;          /* --c-success */
+  --mrg-st-u: #942ef5;          /* --c-warning */
+  --mrg-st-d: #b4493e;          /* --c-danger */
+  --mrg-icon-filter: brightness(0) invert(0.42); /* theme-light-fix.css 의 th 아이콘 보정 */
+  --mrg-chk-opacity: 0.3;       /* 라이트: 미체크 X 를 연하게 (theme-light-fix.css DEL_CHK 보정) */
+  --mrg-agg-bg: #f0e8d3;        /* --c-grid-agg-bg (소계행) */
+  --mrg-agg-text: #2c2a24;      /* --c-grid-agg-text */
+  --mrg-agg-total-bg: #e5d8b8;  /* --c-grid-agg-total-bg (합계행) */
+  --mrg-agg-total-text: #1f1d18;/* --c-grid-agg-total-text */
+}
+
+.mrg {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--mrg-border);
+  border-radius: 6px;
+  overflow: hidden;
+  box-sizing: border-box;
+  background: var(--mrg-bg);
+  color: var(--mrg-text);
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', Dotum, sans-serif;
+  font-size: 12px; /* MOCA 그리드 셀 폰트 */
+}
+
+/* 전체화면 — MOCA .overlayer 이식: 그리드 루트를 뷰포트 전체 고정 오버레이로 확장 */
+.mrg.mrg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 7000;
+  border-radius: 0;
+}
+
+/* 상단 툴바 — MOCA .moca_grid_toolbar: 높이 38px, 좌측 제목/총건수 · 우측 버튼 */
+.mrg-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 38px;
+  background: var(--mrg-bar-bg);
+  border-bottom: 1px solid var(--mrg-border);
+  padding: 0 10px;
+}
+
+.mrg-toolbar-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.mrg-toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 제목 — MOCA .grid_title: 14px 굵게 */
+.mrg-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--mrg-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 총건수 — MOCA .grid_total: 12px 뮤트, 숫자만 primary 굵게(.txt_blue) */
+/* 툴바 아이콘 버튼 — MOCA .moca_grid_toolbar .button: 28×28, 아이콘 16px */
+.mrg-tb-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--mrg-border);
+  border-radius: 4px;
+  background: var(--mrg-bg);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mrg-tb-btn:hover {
+  border-color: var(--mrg-primary);
+}
+
+.mrg-tb-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  filter: var(--mrg-icon-filter);
+}
+
+/* 찾기 — 검색어 입력 + 위치 표시(3/57) + 다음 버튼. 툴바 아이템 규격(28px) 준수 */
+.mrg-find {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.mrg-find-input {
+  height: 28px;
+  width: 130px;
+  padding: 0 8px;
+  border: 1px solid var(--mrg-border);
+  border-radius: 4px;
+  background: var(--mrg-bg);
+  color: var(--mrg-text);
+  font-size: 12px;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.mrg-find-input:focus {
+  outline: none;
+  border-color: var(--mrg-primary);
+}
+
+.mrg-find-input::placeholder {
+  color: var(--mrg-th-text);
+}
+
+/* 푸터 왼쪽(검색 결과·포커스 행) — 좁으면 말줄임, 오른쪽 총건수는 항상 온전히 보인다 */
+.mrg-status-left {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mrg-status-right {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.mrg-find-btn {
+  height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--mrg-border);
+  border-radius: 4px;
+  background: var(--mrg-bg);
+  color: var(--mrg-text);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.mrg-find-btn:hover {
+  border-color: var(--mrg-primary);
+}
+
+/* 행높이 셀렉트 — 툴바 버튼(.mrg-tb-btn)과 같은 높이/테두리 톤. MOCA 원본에 없는 자체 기능이라
+   기존 툴바 아이템 규격(28px, border, radius 4)을 따라 이질감 없이 얹는다 */
+.mrg-rh-select {
+  height: 28px;
+  padding: 0 4px;
+  border: 1px solid var(--mrg-border);
+  border-radius: 4px;
+  background: var(--mrg-bg);
+  color: var(--mrg-text);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.mrg-rh-select:hover {
+  border-color: var(--mrg-primary);
+}
+
+/* 본문 래퍼 — 콘텐츠 영역 + 전용 세로 스크롤바를 나란히 담는다 */
+.mrg-bodywrap {
+  flex: 1 1 auto;
+  min-height: 0; /* flex 자식이 부모보다 커지는 것 방지 — 이게 없으면 영역 계산이 깨진다 */
+  position: relative;
+}
+
+/* 콘텐츠 영역 — 세로는 네이티브 스크롤 없음(전용 스크롤바가 대신함), 가로만 네이티브 스크롤.
+   콘텐츠가 컴포지터에 의해 움직이지 않으므로 빠른 스크롤에도 빈 화면이 생길 수 없다.
+   세로 배치는 flex 컬럼: [헤더][위 고정 합계행][행 클립영역][아래 고정 합계행] — 고정행이
+   일반 흐름이라 스크롤과 무관하게 항상 제자리다. 행 오버플로는 .mrg-rowsclip 이 잘라내므로
+   body 에는 세로 오버플로 자체가 없다(= 무엇으로도 세로로 밀리지 않는다) */
+.mrg-body {
+  height: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 행 클립영역 — 가상화 행(translateY)의 위아래 overscan 삐져나옴을 잘라낸다 */
+.mrg-rowsclip {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mrg-header {
+  display: flex;
+  flex: none; /* body flex 컬럼에서 높이 고정 */
+  background: var(--mrg-th-bg);
+  border-bottom: 1px solid var(--mrg-border);
+  /* 행 컨테이너(.mrg-rows)는 translateY 로 overscan 행만큼 위로 삐져나오는데, transform 이
+     스태킹 컨텍스트를 만들어 일반 흐름의 헤더를 덮어 그린다 — 헤더를 명시적으로 위 레이어로 */
+  position: relative;
+  z-index: 2;
+}
+
+/* 렌더된 행들의 컨테이너 — translateY 로 부분 행 오프셋만 보정 (스크롤은 전용 스크롤바가 담당) */
+.mrg-rows {
+  will-change: transform;
+}
+
+/* 전용 세로 스크롤바 (MOCA .moca_scrollY_type1 이식) — 헤더 아래부터 본문 끝까지,
+   안에는 "행높이 × 전체 행수" 높이의 빈 스페이서 하나만 있어 스크롤바 비율을 만든다 */
+.mrg-vscroll {
+  position: absolute;
+  top: 32px; /* HEADER_H — 헤더 아래부터 */
+  right: 0;
+  bottom: 0;
+  width: 12px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  z-index: 3;
+  scrollbar-width: thin; /* Firefox */
+}
+
+.mrg-vscroll::-webkit-scrollbar {
+  width: 12px;
+}
+
+.mrg-vscroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.mrg-vscroll::-webkit-scrollbar-thumb {
+  background: var(--mrg-border);
+  border-radius: 6px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+.mrg-vscroll::-webkit-scrollbar-thumb:hover {
+  background: var(--mrg-th-text);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+
+.mrg-row {
+  display: flex;
+  align-items: stretch;
+  border-bottom: 1px solid var(--mrg-border);
+  box-sizing: border-box;
+}
+
+/* 얼룩말 배경 — MOCA 는 nth-child(even) 이지만 가상 스크롤은 DOM 순서가 절대 행번호와 어긋나므로
+   절대 행번호 기준의 클래스(mrg-even)를 JSX 에서 부여한다 */
+.mrg-row.mrg-even {
+  background: var(--mrg-row-alt);
+}
+
+.mrg-row:hover {
+  background: var(--mrg-hover);
+}
+
+/* 선택행 — MOCA tr.selected: 선택색 배경 + 전용 글자색 + 좌측 3px primary 인셋 바.
+   :hover 와 특이도가 같아 "뒤에 선언" 으로 이긴다 — 선택행 위에 마우스를 올려도 선택색 유지(MOCA 동일) */
+.mrg-row.mrg-selected {
+  background: var(--mrg-selected);
+  box-shadow: inset 3px 0 0 var(--mrg-primary);
+}
+
+/* 선택행 글자색 — MOCA 는 JS 로 모든 셀에 color 를 심는다. 특수컬럼(.mrg-slim 뮤트색)까지 함께
+   바뀌는 것도 동일. 행상태 C/U/D 스팬(.mrg-st)은 자체 색이 있어 유지된다(MOCA 도 span 색은 안 건드림) */
+.mrg-row.mrg-selected .mrg-cell {
+  color: var(--mrg-text-selected);
+}
+
+.mrg-cell {
+  padding: 0 8px; /* MOCA td 좌 패딩 8px */
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  box-sizing: border-box;
+  border-right: 1px solid var(--mrg-border); /* 컬럼 구분선 */
+}
+
+/* 헤더 셀 — MOCA th: 높이 32px · 12px 굵게 · 중앙정렬 · 뮤트 색 */
+.mrg-hcell {
+  position: relative; /* 리사이즈 핸들(absolute)의 기준 */
+  height: 32px;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--mrg-th-text);
+}
+
+/* 남는 폭을 채우는 빈 칸 — 컬럼 폭 합계가 그리드보다 작을 때 행 배경/구분선을 끝까지 잇는다 */
+.mrg-filler {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+/* 특수컬럼(행상태/행번호/삭제체크) — 좁은 폭 대응: 패딩 축소 + 중앙 정렬 (MOCA moca_cell_slim)
+   폰트 12px 고정 — 행번호 scaleX 압축의 글리프 폭 추정(숫자 7px/콤마 4px)이 이 크기 기준이다 */
+.mrg-slim {
+  padding: 0 2px;
+  justify-content: center;
+  font-size: 12px;
+  color: var(--mrg-th-text);
+}
+
+/* 헤더 아이콘(행상태 연필/행번호 목록) — MOCA .moca_th_icon: 14×14 */
+.mrg-th-icon {
+  width: 14px;
+  height: 14px;
+  display: block;
+  filter: var(--mrg-icon-filter);
+}
+
+/* 삭제체크 — MOCA 와 동일하게 체크박스 대신 X 아이콘 (moca.css DEL_CHK 규칙 이식):
+   평소 얇은 회색 X, 체크 시 primary 원형 배지(X 부분이 투명 컷아웃) + 팝 애니메이션.
+   mask 방식이라 색은 background-color 로 주입한다 */
+.mrg-chk {
+  margin: 0;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: 0;
+  background-color: var(--mrg-text);
+  -webkit-mask: url('./assets/icon_del_x.svg') no-repeat center / 12px 12px;
+  mask: url('./assets/icon_del_x.svg') no-repeat center / 12px 12px;
+  opacity: var(--mrg-chk-opacity, 1);
+}
+
+.mrg-chk:hover {
+  background-color: var(--mrg-text-sub);
+  opacity: 1;
+}
+
+.mrg-chk:checked {
+  background-color: var(--mrg-primary);
+  -webkit-mask: url('./assets/icon_del_x_badge.svg') no-repeat center / 14px 14px;
+  mask: url('./assets/icon_del_x_badge.svg') no-repeat center / 14px 14px;
+  animation: mrg-delchk-pop 0.18s ease-out;
+  opacity: 1;
+}
+
+@keyframes mrg-delchk-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+
+/* 행상태 표기 — MOCA 상태색: C:신규(success) U:수정(warning) D:삭제(danger) */
+.mrg-st {
+  font-weight: 700;
+  font-size: 12px;
+}
+.mrg-st-C { color: var(--mrg-st-c); }
+.mrg-st-U { color: var(--mrg-st-u); }
+.mrg-st-D { color: var(--mrg-st-d); }
+
+/* 컬럼 리사이즈 핸들 — 헤더 셀 오른쪽 가장자리 8px. 올리면 경계선이 강조된다 */
+.mrg-resizer {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 8px;
+  height: 100%;
+  cursor: col-resize;
+  /* 없으면 터치에서 브라우저가 이 제스처를 가로채 스크롤로 써 버리고 pointermove 가 오지 않는다
+     — JS 를 Pointer Events 로 바꿔도 이 한 줄이 빠지면 손가락 리사이즈가 안 된다 */
+  touch-action: none;
+}
+
+/* 손가락은 8px 을 정확히 못 짚는다 — 터치 기기에서만 손가락 크기로 넓힌다(폭은 그대로,
+   경계 양쪽으로 걸치게 해서 옆 컬럼 글자를 가리지 않는다) */
+.mrg-touch .mrg-resizer {
+  width: 20px;
+  right: -10px;
+  z-index: 1;
+}
+
+.mrg-resizer:hover {
+  background: linear-gradient(to right, transparent 50%, var(--mrg-primary) 50%);
+}
+
+/* 드래그 중 — 문서 전체에서 col-resize 커서 유지 + 텍스트 선택 방지 (startResize 가 body 에 부여) */
+body.mrg-resizing,
+body.mrg-resizing * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+.mrg-empty {
+  padding: 24px;
+  text-align: center;
+  color: var(--mrg-th-text);
+}
+
+.mrg-status {
+  padding: 6px 10px;
+  /* 왼쪽 = 검색 결과·포커스 행(좌측 정렬), 오른쪽 = 전체 건수(우측 정렬) */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--mrg-bar-text);
+  background: var(--mrg-bar-bg);
+  border-top: 1px solid var(--mrg-border);
+  flex-shrink: 0;
+}
+
+/* ── 다크(Technical Dark — MOCA demo 기본 테마) 토큰 ── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mrg,
+  :root:not([data-theme="light"]) .mrg-fpanel {
+    --mrg-bg: #0b1116;          /* --c-bg */
+    --mrg-border: #1e2f3d;      /* --c-border */
+    --mrg-th-bg: #192633;       /* --c-grid-th */
+    --mrg-th-text: #748899;     /* --c-text-muted */
+    --mrg-text: #c8d8e4;        /* --c-text-body */
+    --mrg-text-sub: #8fa8bc;    /* --c-text-sub */
+    --mrg-chk-opacity: 1;       /* 다크: 미체크 X 원래 농도 */
+    --mrg-row-alt: #0e1822;     /* --c-grid-row-alt */
+    --mrg-hover: #1a2a37;       /* --c-grid-hover */
+    --mrg-selected: rgba(0, 240, 255, 0.09); /* --c-grid-selected */
+    --mrg-text-selected: #80f8ff;            /* --c-text-selected */
+    --mrg-bar-bg: #111b24;      /* --c-grid-toolbar */
+    --mrg-bar-text: #8fa8bc;    /* --c-text-sub */
+    --mrg-primary: #00f0ff;     /* --c-primary (Electric Cyan) */
+    --mrg-st-c: #22d3a0;        /* --c-success */
+    --mrg-st-u: #a855f7;        /* --c-warning */
+    --mrg-st-d: #ffa040;        /* --c-danger */
+    --mrg-icon-filter: none;    /* 아이콘 원색(#cbd5e1)이 다크용 */
+    --mrg-agg-bg: #143a28;
+    --mrg-agg-text: #86efac;
+    --mrg-agg-total-bg: #2f9e63;
+    --mrg-agg-total-text: #06130b;
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .mrg,
+:root[data-theme="dark"] .mrg-fpanel {
+  --mrg-bg: #0b1116;          /* --c-bg */
+  --mrg-border: #1e2f3d;      /* --c-border */
+  --mrg-th-bg: #192633;       /* --c-grid-th */
+  --mrg-th-text: #748899;     /* --c-text-muted */
+  --mrg-text: #c8d8e4;        /* --c-text-body */
+  --mrg-text-sub: #8fa8bc;    /* --c-text-sub */
+  --mrg-chk-opacity: 1;       /* 다크: 미체크 X 원래 농도 */
+  --mrg-row-alt: #0e1822;     /* --c-grid-row-alt */
+  --mrg-hover: #1a2a37;       /* --c-grid-hover */
+  --mrg-selected: rgba(0, 240, 255, 0.09); /* --c-grid-selected */
+  --mrg-text-selected: #80f8ff;            /* --c-text-selected */
+  --mrg-bar-bg: #111b24;      /* --c-grid-toolbar */
+  --mrg-bar-text: #8fa8bc;    /* --c-text-sub */
+  --mrg-primary: #00f0ff;     /* --c-primary (Electric Cyan) */
+  --mrg-st-c: #22d3a0;        /* --c-success */
+  --mrg-st-u: #a855f7;        /* --c-warning */
+  --mrg-st-d: #ffa040;        /* --c-danger */
+  --mrg-icon-filter: none;    /* 아이콘 원색(#cbd5e1)이 다크용 */
+  --mrg-agg-bg: #143a28;
+  --mrg-agg-text: #86efac;
+  --mrg-agg-total-bg: #2f9e63;
+  --mrg-agg-total-text: #06130b;
+}
+
+
+/* ── 집계행 (소계/합계 — MOCA .moca_grid_agg 이식) ──
+   agg 규칙이 zebra(.mrg-even)·hover 와 특이도가 같으므로 "뒤에 선언" 으로 이긴다 */
+.mrg-row.mrg-agg,
+.mrg-row.mrg-agg:hover {
+  background: var(--mrg-agg-bg);
+}
+
+.mrg-agg .mrg-cell {
+  color: var(--mrg-agg-text);
+  font-weight: 600;
+}
+
+.mrg-row.mrg-agg-total,
+.mrg-row.mrg-agg-total:hover {
+  background: var(--mrg-agg-total-bg);
+}
+
+.mrg-agg-total .mrg-cell {
+  color: var(--mrg-agg-total-text);
+  font-weight: 700;
+}
+
+/* 고정 합계행 — body flex 컬럼의 일반 흐름 자식(헤더 아래 / 클립영역 아래)이라
+   스크롤과 무관하게 항상 제자리다 (MOCA 의 sticky 합계행 대응) */
+.mrg-agg-pin {
+  flex: none;
+}
+
+.mrg-agg-pin-top {
+  box-shadow: 0 1px 0 var(--mrg-border); /* 아래 행들과의 경계선 */
+}
+
+.mrg-agg-pin-bottom {
+  box-shadow: 0 -1px 0 var(--mrg-border); /* 위 행들과의 경계선 */
+}
+
+/* ── 컬럼 세로 병합 (colMerge — MOCA .moca_grid_cellmerged 이식) ──
+   배경을 불투명하게 — 병합 구간 아래 행들의 지브라/hover/선택 강조가 셀 안에 비치지 않게
+   한다(rowspan 병합 셀과 같은 규칙 — 여러 행에 걸친 셀이라 특정 행 강조가 어색). */
+.mrg-cell.mrg-merge {
+  position: relative;
+  background: var(--mrg-bg);
+}
+
+/* 병합이 아래 행으로 이어지는 셀 — 행 경계선(row border-bottom)을 배경색으로 덮는다 */
+.mrg-cell.mrg-merge-open {
+  box-shadow: 0 1px 0 var(--mrg-bg);
+  z-index: 1;
+}
+
+/* ── 트리 셀 (cellType: 'tree' — MOCA moca.css 그리드 트리 이식) ──
+   구조: [조상 연속선 │ ×(depth-2)][├ 또는 └][+/−/• 아이콘][라벨]
+   연결선 칸 14px · 선 1px, 아이콘 16px — MOCA 원본 수치 동일. 색은 토큰이라 다크 자동 대응 */
+.mrg-tree {
+  display: inline-flex;
+  align-items: center;
+  height: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.mrg-tree-line,
+.mrg-tree-mid,
+.mrg-tree-last {
+  position: relative;
+  width: 14px;
+  height: 100%;
+  flex-shrink: 0;
+}
+
+/* │ 조상 레벨 연속선 */
+.mrg-tree-line::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--mrg-border);
+}
+
+/* ├ 부모 노드 (MOCA moca_grid_midddle) */
+.mrg-tree-mid::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--mrg-border);
+}
+
+.mrg-tree-mid::after,
+.mrg-tree-last::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  right: 0;
+  height: 1px;
+  background: var(--mrg-border);
+}
+
+/* └ 리프 노드 (MOCA moca_grid_last) */
+.mrg-tree-last::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  height: 50%;
+  width: 1px;
+  background: var(--mrg-border);
+}
+
+/* +(접힘)/−(펼침) 토글, •(리프) — MOCA moca_grid_plus/minus/leaf */
+.mrg-tree-ico {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.mrg-tree-plus,
+.mrg-tree-minus {
+  cursor: pointer;
+  border: 1px solid var(--mrg-primary);
+  background: color-mix(in srgb, var(--mrg-primary) 12%, transparent);
+  transition: background 0.12s;
+}
+
+.mrg-tree-plus:hover,
+.mrg-tree-minus:hover {
+  background: var(--mrg-primary);
+}
+
+/* +/− 글리프는 그라디언트 조합 — hover 시 배경이 primary 로 차며 글리프는 바탕색으로 반전 */
+.mrg-tree-plus::before,
+.mrg-tree-minus::before {
+  content: '';
+  display: block;
+  width: 8px;
+  height: 8px;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.mrg-tree-plus::before {
+  background-image:
+    linear-gradient(var(--mrg-primary), var(--mrg-primary)),
+    linear-gradient(var(--mrg-primary), var(--mrg-primary));
+  background-size: 8px 2px, 2px 8px;
+}
+
+.mrg-tree-minus::before {
+  background-image: linear-gradient(var(--mrg-primary), var(--mrg-primary));
+  background-size: 8px 2px;
+}
+
+.mrg-tree-plus:hover::before {
+  background-image:
+    linear-gradient(var(--mrg-bg), var(--mrg-bg)),
+    linear-gradient(var(--mrg-bg), var(--mrg-bg));
+}
+
+.mrg-tree-minus:hover::before {
+  background-image: linear-gradient(var(--mrg-bg), var(--mrg-bg));
+}
+
+.mrg-tree-leaf::before {
+  content: '';
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--mrg-text);
+}
+
+.mrg-tree-label {
+  margin-left: 5px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ── 터치 스크롤 (MOCA grid.js 모바일 스와이프 오버레이 이식) ─────────────────────────
+   손가락에는 스크롤바도 휠도 없다. 그래서 터치 기기(.mrg-touch — JS 의 pointer:coarse 판정)
+   에서는 세로 스크롤 담당 요소를 행 영역 전체를 덮는 투명 오버레이로 넓힌다. 안의 스페이서가
+   이미 전체 가상 높이라, 밀면 브라우저 네이티브 스크롤이 그대로 동작한다(관성 포함).
+   구조는 그대로고 입력 수단만 늘어난다 — 가상 스크롤 계산은 종전 scroll 이벤트 그대로. */
+.mrg-touch .mrg-vscroll {
+  left: 0;
+  width: auto; /* left+right 로 폭이 정해진다 — 세로 스크롤바 자리까지 덮는다 */
+  /* 세로 팬만 네이티브에 맡긴다. 가로는 JS(onTouchMove)가 본문 scrollLeft 로 위임 —
+     오버레이는 .mrg-body 의 형제라 스크롤 체이닝이 일어나지 않기 때문 */
+  touch-action: pan-y;
+  /* 끝까지 스크롤했을 때 바깥(팝업·페이지)으로 넘어가지 않게 — 그리드 안에서 끝낸다 */
+  overscroll-behavior: contain;
+  scrollbar-width: none; /* 가짜 썸으로 일원화 (안드로이드 커스텀 스크롤바와 이중 표시 방지) */
+}
+
+.mrg-touch .mrg-vscroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* 가짜 세로 썸 — 위치·높이는 JS(updateThumb)가 넣는다. 오버레이와 같은 세로 구간을 쓰고
+   포인터는 통과시킨다(썸은 표시 전용 — 어차피 화면 아무 데나 밀면 스크롤된다) */
+/* 가짜 세로 썸 — 위치·높이는 JS(updateThumb)가 넣는다. **잡아끌 수 있다**(MOCA _swipeThumbDragStart):
+   10만 행을 손가락 플릭만으로 훑는 건 비현실적이라, 데스크톱의 스크롤바처럼 잡아서 단번에
+   이동할 수단이 있어야 한다.
+   보이는 막대는 6px 이지만 상자는 22px 로 잡고 안쪽 여백을 배경에서 뺀다(background-clip)
+   — 손가락이 6px 을 짚지 못하기 때문. touch-action:none 이 있어야 브라우저가 이 제스처를
+   스크롤로 가져가지 않는다(리사이즈 핸들과 같은 규칙). */
+.mrg-vthumb {
+  position: absolute;
+  right: 0;
+  top: 32px; /* HEADER_H — .mrg-vscroll 과 같은 기준 */
+  width: 22px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-radius: 7px;
+  background: var(--mrg-th-text);
+  background-clip: content-box; /* 여백은 투명 — 보이는 막대는 가운데 6px */
+  opacity: 0;
+  z-index: 4; /* .mrg-vscroll(3) 위 — 오버레이보다 먼저 포인터를 받는다 */
+  touch-action: none;
+  cursor: grab;
+  transition: opacity 0.2s;
+}
+
+.mrg-vthumb:active {
+  cursor: grabbing;
+}
+
+/* 드래그 중에는 또렷하게 — 지금 무엇을 잡고 있는지 보이게 한다 */
+.mrg-vthumb.mrg-vthumb-drag {
+  background: var(--mrg-primary);
+  background-clip: content-box;
+}
+
+/* ══ 정렬 · 필터 (MOCA .moca_grid_sort_box / .itemTable 이식) ══════════════════════
+   버튼은 **흐름 안에** 둔다(제목 오른쪽). absolute 로 띄워 제목을 계속 가운데 두는 안도
+   해 봤지만, 부서(78px)처럼 좁은 컬럼에서 아이콘이 글자 위에 겹쳐 앉는다(실측) —
+   제목이 남은 폭의 가운데로 조금 밀리는 편이 겹치는 것보다 낫다. MOCA 도 흐름에 둔다. */
+.mrg-hcell-btn .mrg-hlabel {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mrg-hbtns {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 3px;
+  margin-right: 2px;        /* 리사이즈 핸들(우측 8px)과 손가락이 겹치지 않게 */
+}
+.mrg-sort,
+.mrg-filter {
+  width: 14px;
+  height: 14px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0.45;
+  flex: none;
+}
+.mrg-sort:hover,
+.mrg-filter:hover { opacity: 1; }
+
+/* 정렬 표식 — 위/아래 삼각형을 CSS 만으로. 정렬이 걸린 쪽만 진하게 칠해
+   "지금 이 컬럼이 오름차순인가 내림차순인가"가 한눈에 보인다(꺼짐은 두 개 다 연하게) */
+.mrg-sort::before,
+.mrg-sort::after {
+  content: '';
+  display: block;
+  margin: 0 auto;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+}
+.mrg-sort::before { border-bottom: 5px solid currentColor; margin-bottom: 2px; }
+.mrg-sort::after { border-top: 5px solid currentColor; }
+.mrg-sort-none { color: var(--mrg-th-text); }
+.mrg-sort-asc,
+.mrg-sort-desc { opacity: 1; color: var(--mrg-th-text); }
+.mrg-sort-asc::before { border-bottom-color: var(--mrg-primary); }
+.mrg-sort-asc::after { opacity: 0.25; }
+.mrg-sort-desc::before { opacity: 0.25; }
+.mrg-sort-desc::after { border-top-color: var(--mrg-primary); }
+
+/* 필터 표식 — 깔때기. 적용 중이면 색을 채워 "이 컬럼이 지금 걸러내고 있다"를 남긴다 */
+.mrg-filter::before {
+  content: '';
+  display: block;
+  width: 0;
+  height: 0;
+  margin: 0 auto;
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 7px solid currentColor;
+  color: var(--mrg-th-text);
+}
+.mrg-filter::after {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 4px;
+  margin: 0 auto;
+  background: currentColor;
+  color: var(--mrg-th-text);
+}
+.mrg-filter-on { opacity: 1; }
+.mrg-filter-on::before,
+.mrg-filter-on::after { color: var(--mrg-primary); }
+
+/* 툴바의 글자 버튼(필터 해제) — 아이콘 버튼(.mrg-tb-btn)과 같은 틀에 폭만 글자에 맞춘다 */
+.mrg-tb-text {
+  width: auto;
+  padding: 0 8px;
+  font-size: 12px;
+  font-family: inherit;
+  color: var(--mrg-text);
+}
+
+/* 필터 목록의 체크박스 — 그리드 본체의 .mrg-chk 는 "삭제표시 X" 라 뜻이 정반대로 읽힌다.
+   여기서는 "고를 값을 켠다" 이므로 평범한 체크 표시로 그린다 */
+.mrg-fchk {
+  appearance: none;
+  -webkit-appearance: none;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  position: relative;
+  cursor: pointer;
+  border: 1px solid var(--mrg-border);
+  border-radius: 3px;
+  background: var(--mrg-bg);
+}
+.mrg-fchk:hover { border-color: var(--mrg-primary); }
+.mrg-fchk:checked {
+  background: var(--mrg-primary);
+  border-color: var(--mrg-primary);
+}
+.mrg-fchk:checked::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 1px;
+  width: 3px;
+  height: 7px;
+  border: solid var(--mrg-bg);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+/* ── 필터 드롭다운 ──
+   body 로 포털된다(그리드의 overflow:hidden 에 잘리지 않게) — 그래서 fixed 좌표다.
+   z-index 는 전체화면 오버레이(7000)보다 위 */
+.mrg-fpanel {
+  position: fixed;
+  z-index: 7600;
+  width: 240px;
+  display: flex;
+  flex-direction: column;
+  background: var(--mrg-bg);
+  color: var(--mrg-text);
+  border: 1px solid var(--mrg-border);
+  border-radius: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', Dotum, sans-serif;
+  font-size: 12px;
+  overflow: hidden;
+}
+.mrg-fhead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  padding: 6px 8px;
+  background: var(--mrg-bar-bg);
+  border-bottom: 1px solid var(--mrg-border);
+}
+.mrg-fall {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  color: var(--mrg-bar-text);
+}
+.mrg-finput {
+  margin: 6px 8px;
+  height: 26px;
+  padding: 0 8px;
+  border: 1px solid var(--mrg-border);
+  border-radius: 4px;
+  background: var(--mrg-bg);
+  color: var(--mrg-text);
+  font-size: 12px;
+  font-family: inherit;
+  outline: none;
+}
+.mrg-finput:focus { border-color: var(--mrg-primary); }
+
+.mrg-flist {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0 0 4px;
+  list-style: none;
+}
+.mrg-flist li label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  cursor: pointer;
+}
+.mrg-flist li:hover { background: var(--mrg-hover); }
+.mrg-flist li.mrg-fon { background: var(--mrg-selected); }
+/* 값은 남는 폭을 다 쓰고 넘치면 말줄임 — 건수는 오른쪽에 붙어 항상 보인다 */
+.mrg-fv {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.mrg-fc {
+  flex: none;
+  color: var(--mrg-text-sub);
+  font-size: 11px;
+}
+.mrg-fempty,
+.mrg-fover {
+  padding: 12px 10px;
+  color: var(--mrg-text-sub);
+  line-height: 1.6;
+  text-align: center;
+}
+
+.mrg-fbtns {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 6px 8px;
+  background: var(--mrg-bar-bg);
+  border-top: 1px solid var(--mrg-border);
+}
+.mrg-fbtn {
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--mrg-border);
+  border-radius: 4px;
+  background: var(--mrg-bg);
+  color: var(--mrg-text);
+  font-size: 12px;
+  font-family: inherit;
+  cursor: pointer;
+}
+.mrg-fbtn:hover { border-color: var(--mrg-primary); }
+.mrg-fbtn-main {
+  background: var(--mrg-primary);
+  border-color: var(--mrg-primary);
+  color: var(--mrg-bg);
+  font-weight: 700;
+}
+
+/* 필터 걸린 건수 — 푸터에서 눈에 띄게(MOCA 도 txt_red 로 표시한다) */
+.mrg-filtered-cnt { color: var(--mrg-st-d); }
+
+/* 손가락 대상은 히트영역을 넓힌다 — 14px 아이콘을 손가락으로 못 짚는다(컬럼 리사이즈와 같은 규칙) */
+.mrg-touch .mrg-sort,
+.mrg-touch .mrg-filter { width: 22px; height: 22px; }
+.mrg-touch .mrg-hbtns { margin-right: 12px; }
+.mrg-touch .mrg-flist li label { padding: 8px; }
+
+/* ── 다단 헤더 묶음 제목 — 아래 칸들 위로 가로 병합(left·width·top 은 JSX 가 colWidths 로 정한다) ── */
+.mrg-hgroup {
+  position: absolute;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--mrg-th-text);
+  background: var(--mrg-th-bg);
+  border-bottom: 1px solid var(--mrg-border);
+  z-index: 1;
+}
+
+/* ── 엑셀 버튼 — 원색(초록) 그대로. 다른 툴바 아이콘처럼 테마 필터를 먹이지 않는다 ── */
+.mrg-tb-icon.mrg-tb-excel {
+  filter: none;
+}
+
+/* ── 셀 편집 ── */
+/* 고칠 수 있는 칸 — 더블클릭 표시로 커서만 바꾼다(색을 칠하면 화면이 시끄럽다) */
+.mrg-cell.mrg-editable {
+  cursor: text;
+}
+/* 고치는 중인 칸 — 입력칸이 칸을 꽉 채우게 패딩을 걷는다 */
+.mrg-cell.mrg-editing {
+  padding: 0;
+  overflow: visible;
+}
+.mrg-editor {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0 7px;
+  border: 2px solid var(--mrg-primary);
+  border-radius: 0;
+  outline: none;
+  font: inherit;
+  color: var(--mrg-text);
+  background: var(--mrg-bg);
+}
+select.mrg-editor {
+  padding: 0 4px;
+}
+/* 체크박스 편집 칸 — 테마 primary 색으로 */
+.mrg-chk-edit {
+  margin: 0 auto;
+  width: 15px;
+  height: 15px;
+  accent-color: var(--mrg-primary);
+  cursor: pointer;
+}
+.mrg-chk-edit:disabled {
+  cursor: default;
+  opacity: 0.6;
+}

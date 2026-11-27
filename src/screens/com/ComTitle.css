@@ -1,0 +1,58 @@
+/* 공통 화면 타이틀바 — MOCA .page_title_bar 대응 */
+.com-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1px solid #d8dee5;
+  border-radius: 6px;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+
+.com-title-icon {
+  font-size: 16px;
+}
+
+.com-title-id {
+  color: #8a8fa0;
+  font-size: 12px;
+  font-family: Consolas, monospace;
+}
+
+.com-title-text {
+  font-weight: 700;
+}
+
+/* 브레드크럼(메뉴 경로) — 우측 정렬, MOCA page_title_path 대응 */
+.com-title-path {
+  margin-left: auto;
+  color: #8a8fa0;
+  font-size: 12px;
+}
+
+.com-title-refresh {
+  border: 1px solid #c4ccd5;
+  background: transparent;
+  border-radius: 5px;
+  color: inherit;
+  width: 26px;
+  height: 26px;
+  line-height: 1;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.com-title-refresh:hover {
+  background: rgba(127, 127, 127, 0.12);
+}
+
+@media (prefers-color-scheme: dark) {
+  .com-title {
+    border-color: #2a3644;
+  }
+
+  .com-title-refresh {
+    border-color: #3a4a5c;
+  }
+}

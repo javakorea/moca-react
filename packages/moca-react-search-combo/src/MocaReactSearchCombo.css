@@ -1,0 +1,177 @@
+/* MOCA React SearchCombo — MOCA moca.css 의 [data-m-type="searchCombo"] 규칙 이식.
+   색은 MOCA demo 토큰 값 하드코딩(라이트 = Warm Paper / 다크 = Technical Dark) —
+   다른 @teammoca 패키지들과 동일한 자체 토큰 방식 */
+.mrsc {
+  --mrsc-bg: #ffffff;        /* --c-header-bg */
+  --mrsc-border: #e7e0d4;    /* --c-border */
+  --mrsc-border-d: #d8cfbe;  /* --c-border-dark */
+  --mrsc-text: #4a463c;      /* --c-text-body */
+  --mrsc-muted: #9b9384;     /* --c-text-muted */
+  --mrsc-primary: #0f766e;   /* --c-primary */
+  --mrsc-on-primary: #ffffff;/* --c-on-primary */
+  --mrsc-hover: #f4efe6;     /* --c-grid-hover */
+
+  position: relative;
+  display: inline-block;
+  width: 160px;
+  box-sizing: border-box;
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', sans-serif;
+  font-size: 13px;
+  color: var(--mrsc-text);
+}
+
+/* 입력칸 + ▼ 버튼 — MOCA .filterheader */
+.mrsc-box {
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--mrsc-border-d);
+  border-radius: 5px;
+  background: var(--mrsc-bg);
+  transition: border-color 0.15s;
+  overflow: hidden;
+}
+
+.mrsc-box:focus-within {
+  border-color: var(--mrsc-primary);
+}
+
+.mrsc-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  padding: 5px 7px;
+}
+
+.mrsc-input::placeholder {
+  color: var(--mrsc-muted);
+  font-size: 11px;
+}
+
+.mrsc-ro .mrsc-box,
+.mrsc-disabled .mrsc-box {
+  background: var(--mrsc-hover);
+}
+
+.mrsc-disabled {
+  opacity: 0.6;
+}
+
+/* ▼ — 이미지 대신 CSS 삼각형. currentColor 를 따라가 테마 전환에 자동 대응한다 */
+.mrsc-btn {
+  flex: 0 0 auto;
+  width: 22px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 0;
+  position: relative;
+}
+
+.mrsc-btn::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  margin: -2px 0 0 -4px;
+  border-left: 4px solid transparent;
+  border-right: 4px solid transparent;
+  border-top: 5px solid currentColor;
+  opacity: 0.65;
+}
+
+.mrsc-btn:hover::after {
+  opacity: 1;
+}
+
+/* 목록 — 뷰포트 기준 fixed. 좌표·폭·최대높이는 JS(relocate)가 인라인으로 넣는다.
+   레이아웃 pane(overflow:auto)이나 48px 헤더 안에서 잘리지 않게 하려는 것 (MOCA 동일 이유) */
+.mrsc-pop {
+  position: fixed;
+  z-index: 6200; /* MOCA .searchCmbTable 과 같은 층 */
+  background: var(--mrsc-bg);
+  border: 1px solid var(--mrsc-border-d);
+  border-radius: 5px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.18);
+  overflow-y: auto;
+  font-size: 12px;
+  color: var(--mrsc-text);
+}
+
+.mrsc-pop ul {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.mrsc-pop li {
+  padding: 6px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--mrsc-border);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: background 0.1s;
+}
+
+.mrsc-pop li:last-child {
+  border-bottom: none;
+}
+
+/* 확정값 표시 — 하이라이트(.on)와 겹치면 .on 이 이긴다(뒤에 선언) */
+.mrsc-pop li.sel {
+  color: var(--mrsc-primary);
+  font-weight: 600;
+}
+
+/* 하이라이트 — 키보드 ↓↑ 와 마우스 hover 가 같은 표시를 쓴다 (MOCA li.on) */
+.mrsc-pop li.on {
+  background: var(--mrsc-primary);
+  color: var(--mrsc-on-primary);
+  font-weight: 600;
+}
+
+.mrsc-empty {
+  padding: 10px;
+  color: var(--mrsc-muted);
+  text-align: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mrsc {
+    --mrsc-bg: #131a21;
+    --mrsc-border: #1e2f3d;
+    --mrsc-border-d: #2a3644;
+    --mrsc-text: #d5dee7;
+    --mrsc-muted: #7d8b99;
+    --mrsc-primary: #14b8a6;
+    --mrsc-on-primary: #06131a;
+    --mrsc-hover: #0f161d;
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .mrsc {
+  --mrsc-bg: #131a21;
+  --mrsc-border: #1e2f3d;
+  --mrsc-border-d: #2a3644;
+  --mrsc-text: #d5dee7;
+  --mrsc-muted: #7d8b99;
+  --mrsc-primary: #14b8a6;
+  --mrsc-on-primary: #06131a;
+  --mrsc-hover: #0f161d;
+}
+
+/* 모바일(≤768px) — 손가락으로 짚는 목록이라 행을 키운다 (MOCA mobile.css 의 목록 규칙과 같은 취지) */
+@media (max-width: 768px) {
+  .mrsc-pop li {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}

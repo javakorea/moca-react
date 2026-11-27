@@ -1,0 +1,42 @@
+:root {
+  font-family: 'Segoe UI', 'Malgun Gothic', system-ui, sans-serif;
+  line-height: 1.5;
+  color-scheme: light dark; /* 테마 미지정(외부 앱 등) — OS 를 따른다 */
+}
+
+/* 테마를 고르면 브라우저 기본 위젯(스크롤바·셀렉트·입력)도 그 팔레트로 맞춘다.
+   이게 없으면 다크 화면에 흰 스크롤바가 남는다 */
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* 부트 순간(React 렌더 전)에 흰 종이가 비치지 않게 body 도 테마 바탕을 깐다.
+   값은 각 팔레트의 바탕색(Warm Paper / Technical Dark)과 같은 것 */
+:root[data-theme='light'] body {
+  background: #fffdf9;
+}
+
+:root[data-theme='dark'] body {
+  background: #0b1116;
+}
+
+/* MOCA base.css 의 `html, body { height:100%; overflow:hidden }` 과 같은 골격 —
+   문서 자체는 스크롤하지 않고, 스크롤은 화면 안쪽(그리드·목록)이 맡는다.
+   Vite 기본 템플릿의 `min-height:100vh` 를 그대로 두면 모바일에서 어긋난다: 100vh 는
+   주소창이 접힌 뒤의 높이라 body 가 보이는 화면보다 주소창만큼 커지고 → 문서가 스크롤되고
+   → 위로 스와이프하면 주소창이 접히는데, 셸 높이는 svh(주소창 있는 높이)로 고정이라
+   화면 아래에 주소창 높이만큼 빈 띠가 남는다. 문서를 못 움직이게 하면 주소창도 접히지 않는다. */
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+}

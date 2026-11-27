@@ -1,0 +1,21 @@
+{
+  "name": "@teammoca/react-mdi",
+  "version": "0.1.0",
+  "description": "MOCA React MDI — 좌우 화면분할 · 탭 드래그 이동(상태 보존)을 갖춘 업무용 React MDI 탭 셸",
+  "type": "module",
+  "main": "src/index.js",
+  "module": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "license": "MIT",
+  "author": "teammoca"
+}

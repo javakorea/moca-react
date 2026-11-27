@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="ko" translate="no">
+  <head>
+    <meta charset="UTF-8" />
+<meta name="google" content="notranslate">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MOCA React Studio</title>
+    <!-- 테마를 페인트 전에 박는다 — 앱(index.html)과 같은 저장값(moca-react-theme)을 따른다 -->
+    <script>
+      (function () {
+        var t = 'system'
+        try { t = localStorage.getItem('moca-react-theme') || 'system' } catch (e) { /* 프라이빗 모드 */ }
+        var dark = t === 'dark' || (t !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches)
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light')
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="studio-root"></div>
+    <script type="module" src="/studio/main.jsx"></script>
+  </body>
+</html>

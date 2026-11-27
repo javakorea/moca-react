@@ -1,0 +1,352 @@
+/* MOCA React MDI — MOCA demo 디자인 시스템(moca.css .mdi_*)의 스타일 이식.
+   라이트 = Warm Paper / 다크 = Technical Dark 토큰 — grid 패키지와 같은 팔레트를 쓴다 */
+.mrm {
+  /* ── 라이트(Warm Paper) 토큰 ── */
+  --mrm-bg: #fffdf9;            /* --c-bg(콘텐츠 배경) — 활성 탭과 body 가 같은 색으로 이어진다 */
+  --mrm-tab-bg: #f3efe6;        /* --c-grid-toolbar(비활성 탭 배경) */
+  --mrm-border: #e7e0d4;        /* --c-border */
+  --mrm-border-dark: #cec5b4;   /* --c-border-dark(빈 패널 점선 테두리) */
+  --mrm-text: #4a463c;          /* --c-text-body */
+  --mrm-muted: #6b6455;         /* --c-text-muted */
+  --mrm-primary: #0f766e;       /* --c-primary */
+  --mrm-primary-glow: rgba(15, 118, 110, 0.25); /* 버튼 hover 발광 */
+  --mrm-danger: #b4493e;        /* --c-danger */
+
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  color: var(--mrm-text);
+  font-family: 'Pretendard Variable', Pretendard, 'Malgun Gothic', '맑은 고딕', Dotum, sans-serif;
+}
+
+/* 분할 모드 — 세로 쌓기(단일)에서 가로 배치(메인|바|서브)로 (MOCA .mdi_box.mdi_split) */
+.mrm.mrm-split {
+  flex-direction: row;
+}
+
+.mrm-pane {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.mrm-split .mrm-pane {
+  min-width: 280px; /* MIN_PANE_W — 리사이징 clamp 와 같은 값 */
+  box-sizing: border-box;
+}
+
+/* 분할 시 메인 패널은 고정 폭(기본 50%, 리사이징바로 px 지정), 서브가 나머지를 채운다 */
+.mrm-split .mrm-pane:not(.mrm-pane-sub) {
+  flex: none;
+  width: 50%;
+}
+
+/* 패널 사이 리사이징바 (MOCA .resizingbar) */
+.mrm-resizebar {
+  width: 4px;
+  flex-shrink: 0;
+  border-left: 1px solid var(--mrm-border);
+  border-right: 1px solid var(--mrm-border);
+  cursor: col-resize;
+  transition: background 0.15s;
+}
+
+.mrm-resizebar:hover {
+  background: var(--mrm-primary);
+  border-color: var(--mrm-primary);
+}
+
+/* 드래그 중 문서 전체 col-resize 커서 유지 (grid 컬럼 리사이징과 같은 수법) */
+body.mrm-resizing,
+body.mrm-resizing * {
+  cursor: col-resize !important;
+  user-select: none;
+}
+
+/* ── 탭바 (MOCA .mdi_tabbar) — body 위 1px 를 덮어 활성 탭이 본문과 이어져 보인다 ── */
+.mrm-tabbar {
+  display: flex;
+  align-items: flex-end;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+  margin-bottom: -1px;
+  padding: 15px 15px 0;
+}
+
+/* 탭 스트립 — 넘치면 가로 스크롤(스크롤바 숨김). 좌우 시프트 버튼은 다음 후보 */
+.mrm-tabstrip {
+  display: flex;
+  align-items: flex-end;
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.mrm-tabstrip::-webkit-scrollbar {
+  display: none;
+}
+
+/* 탭 (MOCA .mdi_tab — 고정폭 170px, 위쪽 라운드) */
+.mrm-tab {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 10px 7px 16px;
+  width: 170px;
+  box-sizing: border-box;
+  flex-shrink: 0;
+  background: var(--mrm-tab-bg);
+  border: 1px solid var(--mrm-border);
+  border-bottom: none;
+  margin-bottom: 1px;
+  border-radius: 6px 6px 0 0;
+  cursor: pointer;
+  font-size: 13px;
+  user-select: none;
+  transition: background 0.15s;
+}
+
+/* 활성 탭 — 본문 배경색 + primary 테두리, 아래로 1px 내려붙어 body 테두리와 연결 (MOCA 동일) */
+.mrm-tab.mrm-active {
+  background: var(--mrm-bg);
+  color: var(--mrm-primary);
+  border-top: 1px solid var(--mrm-primary);
+  border-left: 1px solid var(--mrm-primary);
+  border-right: 1px solid var(--mrm-primary);
+  padding-bottom: 8px;
+  margin-bottom: 0;
+}
+
+.mrm-tab-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 탭 닫기 버튼 (MOCA .mdi_tab_close_btn — mask 아이콘, hover 시 danger) */
+.mrm-tab-close {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 3px;
+  flex-shrink: 0;
+  padding: 0;
+  transition: background 0.12s;
+}
+
+.mrm-tab-close::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mrm-muted);
+  -webkit-mask: url('./assets/icon_close.svg') no-repeat center / 10px 10px;
+  mask: url('./assets/icon_close.svg') no-repeat center / 10px 10px;
+  transition: background 0.12s;
+}
+
+.mrm-tab-close:hover {
+  background: rgba(255, 80, 80, 0.2);
+}
+
+.mrm-tab-close:hover::before {
+  background: var(--mrm-danger);
+}
+
+/* 분할/전체닫기 버튼 — 탭바 우측, 폭 22px 스트레치 (MOCA .mdi_split_btn/.mdi_closeall_btn) */
+.mrm-split-btn,
+.mrm-closeall-btn {
+  position: relative;
+  align-self: stretch;
+  margin-left: 5px;
+  margin-bottom: 5px;
+  height: auto;
+  min-height: 25px;
+  width: 22px;
+  padding: 0;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: box-shadow 0.15s;
+}
+
+.mrm-split-btn {
+  border: 1px solid var(--mrm-primary);
+  background: var(--mrm-bg);
+}
+
+.mrm-split-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mrm-primary);
+  -webkit-mask: url('./assets/icon_mdi_split.svg') no-repeat center / 14px 14px;
+  mask: url('./assets/icon_mdi_split.svg') no-repeat center / 14px 14px;
+}
+
+/* 분할 중엔 병합 아이콘으로 교체 (MOCA .mdi_split_btn.active) */
+.mrm-split-btn.mrm-on::before {
+  -webkit-mask-image: url('./assets/icon_mdi_merge.svg');
+  mask-image: url('./assets/icon_mdi_merge.svg');
+}
+
+.mrm-split-btn:hover {
+  box-shadow: 0 0 6px var(--mrm-primary-glow);
+}
+
+.mrm-closeall-btn {
+  border: 1px solid var(--mrm-border);
+  background: var(--mrm-tab-bg);
+}
+
+.mrm-closeall-btn::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--mrm-muted);
+  -webkit-mask: url('./assets/icon_trash.svg') no-repeat center / 14px 14px;
+  mask: url('./assets/icon_trash.svg') no-repeat center / 14px 14px;
+}
+
+.mrm-closeall-btn:hover {
+  background: rgba(255, 80, 80, 0.15);
+  border-color: var(--mrm-danger);
+}
+
+.mrm-closeall-btn:hover::before {
+  background: var(--mrm-danger);
+}
+
+/* ── 본문 (MOCA .mdi_body) — primary 1px 테두리, 탭바가 위를 1px 덮는다 ── */
+.mrm-body {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  position: relative;
+  background: var(--mrm-bg);
+  border: 1px solid var(--mrm-primary);
+}
+
+/* 빈 패널 — 점선 드롭존 (MOCA .mdi_ly:not(:has(.mdi_tab)) .mdi_body) */
+.mrm-pane.mrm-empty .mrm-body {
+  border: 2px dashed var(--mrm-border-dark);
+  border-radius: 8px;
+  margin: 8px;
+}
+
+/* 드래그가 올라와 있는 빈 패널 — 테두리/힌트 primary 강조 (MOCA .mdi_drag_over) */
+.mrm-pane.mrm-empty.mrm-dragover .mrm-body {
+  border-color: var(--mrm-primary);
+}
+
+.mrm-pane.mrm-empty.mrm-dragover .mrm-drop-hint {
+  color: var(--mrm-primary);
+}
+
+.mrm-pane.mrm-empty.mrm-dragover .mrm-drop-icon {
+  background: var(--mrm-primary);
+}
+
+/* 드롭 힌트 (MOCA .mdi_drop_hint) */
+.mrm-drop-hint {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  height: 100%;
+  color: var(--mrm-muted);
+  font-size: 13px;
+  pointer-events: none; /* 드래그 이벤트가 패널로 곧장 가도록 */
+}
+
+.mrm-drop-hint span {
+  opacity: 0.7;
+}
+
+.mrm-drop-icon {
+  width: 52px;
+  height: 52px;
+  background: var(--mrm-muted);
+  -webkit-mask: url('./assets/icon_mdi_drop_left.svg') no-repeat center / 52px 52px;
+  mask: url('./assets/icon_mdi_drop_left.svg') no-repeat center / 52px 52px;
+}
+
+.mrm-pane-sub .mrm-drop-icon {
+  -webkit-mask-image: url('./assets/icon_mdi_drop_right.svg');
+  mask-image: url('./assets/icon_mdi_drop_right.svg');
+}
+
+/* 탭 콘텐츠 홀더 — JS(getHolder)가 만들어 패널 body 에 부착한다. 화면 하나가 꽉 채운다 */
+.mrm-panel {
+  height: 100%;
+  overflow: auto;
+}
+
+/* ── 다크(Technical Dark) 토큰 ── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .mrm {
+    --mrm-bg: #0b1116;          /* --c-bg */
+    --mrm-tab-bg: #111b24;      /* --c-grid-toolbar */
+    --mrm-border: #1e2f3d;      /* --c-border */
+    --mrm-border-dark: #33495c; /* --c-border-dark */
+    --mrm-text: #c8d8e4;        /* --c-text-body */
+    --mrm-muted: #748899;       /* --c-text-muted */
+    --mrm-primary: #00f0ff;     /* --c-primary (Electric Cyan) */
+    --mrm-primary-glow: rgba(0, 240, 255, 0.35);
+    --mrm-danger: #ffa040;      /* --c-danger */
+  }
+}
+
+/* 사용자가 테마를 고른 경우 — 위 블록과 값이 같아야 한다(호스트가 data-theme 을 지정) */
+:root[data-theme="dark"] .mrm {
+  --mrm-bg: #0b1116;          /* --c-bg */
+  --mrm-tab-bg: #111b24;      /* --c-grid-toolbar */
+  --mrm-border: #1e2f3d;      /* --c-border */
+  --mrm-border-dark: #33495c; /* --c-border-dark */
+  --mrm-text: #c8d8e4;        /* --c-text-body */
+  --mrm-muted: #748899;       /* --c-text-muted */
+  --mrm-primary: #00f0ff;     /* --c-primary (Electric Cyan) */
+  --mrm-primary-glow: rgba(0, 240, 255, 0.35);
+  --mrm-danger: #ffa040;      /* --c-danger */
+}
+
+
+/* ── 모바일(≤768px) — MOCA mobile.css 의 .mdi_* 규칙 이식 ────────────────────
+   탭바를 통째로 숨긴다(MOCA `.mdi_tabbar { display:none }`). 170px 고정폭 탭은 두어 개만
+   열려도 좁은 화면 폭을 다 먹고, 분할·전체닫기는 터치로 쓸 일이 없다. 화면 전환은 좌측
+   메뉴(햄버거 드로어)가 맡는다 — 이미 열린 화면을 메뉴에서 고르면 activate 만 되므로
+   탭바 없이도 오갈 수 있다.
+   분할 중이었다면 가로 2단이 좁은 폭에 들어가지 않으므로 세로로 쌓는다. */
+@media (max-width: 768px) {
+  .mrm-tabbar {
+    display: none;
+  }
+
+  .mrm.mrm-split {
+    flex-direction: column;
+  }
+
+  .mrm-resizebar {
+    display: none;
+  }
+
+  /* 가로 분할용 고정폭·최소폭(280px)을 풀어 두 패널이 높이를 나눠 갖게 한다.
+     width 의 !important 는 패널 리사이징이 남긴 인라인 폭(style={{width:mainW}})을 이기기 위함 */
+  .mrm-split .mrm-pane,
+  .mrm-split .mrm-pane:not(.mrm-pane-sub) {
+    flex: 1;
+    width: auto !important;
+    min-width: 0;
+  }
+}
