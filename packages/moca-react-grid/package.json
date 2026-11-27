@@ -17,5 +17,17 @@
     "react-dom": ">=18"
   },
   "license": "MIT",
-  "author": "teammoca"
+  "author": "teammoca",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/javakorea/moca-react.git",
+    "directory": "packages/moca-react-grid"
+  },
+  "homepage": "https://github.com/javakorea/moca-react#readme",
+  "bugs": {
+    "url": "https://github.com/javakorea/moca-react/issues"
+  }
 }
