@@ -36,7 +36,11 @@ npm run build    # dist/ 생성
 
 ## 후원
 
-도움이 되셨다면 [후원](https://github.com/sponsors/javakorea)으로 개발을 응원해 주세요.
+MOCA는 개인이 만들고 있습니다. 도움이 되셨다면 후원으로 개발을 이어 갈 수 있게 해 주세요.
+
+[![Sponsor](https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?logo=githubsponsors)](https://github.com/sponsors/javakorea)
+
+→ <https://github.com/sponsors/javakorea>
 
 ## 라이선스
 
